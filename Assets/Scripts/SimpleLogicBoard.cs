@@ -19,7 +19,7 @@ public class SimpleLogicBoard
     /// <summary>
     /// Este array representa el tablero lógico 3x3
     /// </summary>
-    private static int[,] board = new int[dim, dim];
+    private int[,] board = new int[dim, dim];
 
 
 
@@ -30,11 +30,12 @@ public class SimpleLogicBoard
         for (int y = 0; y < dim; y++)
             for (int x = 0; x < dim; x++)
                 board[y, x] = 0;
-    } 
+    }
 
 
     /// <summary>
     /// Comprueba si hay un ganador en el tablero actual.
+    /// Codigo sacado de http://www.errordesintaxis.es/verfuente.php?fuente=228
     /// </summary>
     private void checkWinner()
     {

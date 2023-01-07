@@ -236,8 +236,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 46150e26db310e64c933fe58ee2262c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interOffset: 0.5
-  simpleBoardPrefab: {fileID: 102506562228277348, guid: a8eb2c4e5463fee4bbd443ef50156326, type: 3}
+  interOffset: 0.1
+  simpleBoardPrefab: {fileID: 2164424574606747515, guid: a8eb2c4e5463fee4bbd443ef50156326, type: 3}
 --- !u!4 &1681753012
 Transform:
   m_ObjectHideFlags: 0

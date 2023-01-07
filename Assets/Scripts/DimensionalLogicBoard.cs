@@ -18,7 +18,7 @@ public class DimensionalLogicBoard
     /// <summary>
     /// Este array representa el tablero lógico 3x3
     /// </summary>
-    private static SimpleLogicBoard[,] board = new SimpleLogicBoard[3, 3];
+    private SimpleLogicBoard[,] board = new SimpleLogicBoard[dim, dim];
 
 
 
@@ -34,6 +34,7 @@ public class DimensionalLogicBoard
 
     /// <summary>
     /// Comprueba si hay un ganador actual.
+    /// Codigo sacado de http://www.errordesintaxis.es/verfuente.php?fuente=228
     /// </summary>
     private void checkWinner()
     {
@@ -78,26 +79,39 @@ public class DimensionalLogicBoard
     /// <returns>
     /// True if player fill the cell xy. False otherwise
     /// </returns>
-    public bool TryFillCellByOnePlayer(int yDimBoard, int xDimBoard, int ySimpleBorad, int xSimpleBoard, int pId)
+    public bool TryFillCellByOnePlayer(int ySimpleBorad, int xSimpleBoard, int yCell, int xCell, int pId)
     {
-        if (board[yDimBoard, xDimBoard].WhoWin() != -1)
+        if (board[ySimpleBorad, xSimpleBoard].WhoWin() != -1 || WhoWin() != -1)
             return false;
 
-        board[yDimBoard, xDimBoard].TryFillCellByOnePlayer(ySimpleBorad, xSimpleBoard, pId);
+        bool aux = board[ySimpleBorad, xSimpleBoard].TryFillCellByOnePlayer(yCell, xCell, pId);
 
         checkWinner();
 
-        return true;
+        return aux;
     }
 
     /// <summary>
-    /// Método que sirve para consultar quien ha ganado el board.
+    /// Método que sirve para consultar quien ha ganado la partida.
     /// </summary>
     /// <returns>
     /// Devuelve el id del juegador que ha ganado. El valor es 0 si el resultado es empate. 
     /// El valor es -1 si todavía no ha acabado la partida.
     /// </returns>
     public int WhoWin() { return playerWin; }
+
+
+    /// <summary>
+    /// Método que sirve para consultar quien ha ganado en un board especifico.
+    /// </summary>
+    /// <returns>
+    /// Devuelve el id del juegador que ha ganado. El valor es 0 si el resultado es empate. 
+    /// El valor es -1 si todavía no ha acabado la partida.
+    /// </returns>
+    public int WhoWinInSimpleBoard(int x, int y)
+    {
+        return board[y,x].WhoWin();
+    }
 
 
 }
