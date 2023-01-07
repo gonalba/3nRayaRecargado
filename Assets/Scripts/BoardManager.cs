@@ -104,20 +104,13 @@ public class BoardManager : MonoBehaviour
             return false;
 
 
-        //Debug.Log("X: " + xCell + " " + "Y: " + yCell);
-
-        //Debug.Log("X Board: " + currentXBoard + " " + "Y Board: " + currentYBoard);
-
         // normalizamos las coordenadas de la casilla para que entre dentro del rango 3x3
         xCell %= dim;
         yCell %= dim;
 
-        // vemos si se puede poner una ficha en la celda clicada
-        bool aux = dimLogicBoard.TryFillCellByOnePlayer(yBoard, xBoard, yCell, xCell, player);
-
 
         // si podemos colocar la ficha 
-        if (aux)
+        if (dimLogicBoard.TryFillCellByOnePlayer(yBoard, xBoard, yCell, xCell, player))
         {
             // la colocamos en la celda correspondiente
             renderBoard[yBoard, xBoard].ChangeCellToPlayer(yCell, xCell, player);
@@ -142,9 +135,10 @@ public class BoardManager : MonoBehaviour
                 currentXBoard = xCell;
                 currentYBoard = yCell;
             }
+            return true;
         }
 
-        return aux;
+        return false;
     }
 
 
