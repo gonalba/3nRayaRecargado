@@ -34,55 +34,59 @@ public class BoardManager : MonoBehaviour
         turnCount = Random.Range(0, 2);
         turn = turnCount + 1;
 
-        #region Escalado del tablero
-        // escalamos tablero a la resolucion de la pantalla
-        // cogemos resolucion
-        int w = Screen.currentResolution.width;
-        int h = Screen.currentResolution.height;
-
-        float boardSize = (dim * dim) + (2 * interOffset);
-        float lessSize;
-        Debug.Log("W: " + w + " H: " + h);
-        // averiguamos si esta apaisado o en vertical (w>h o h>w)
-        if (w <= h)
-        {
-            // unidades de unity de la vertical
-            lessSize = Camera.main.orthographicSize * 2;
-        }
-        else
-        {   // unidades de unity de la horizontal
-            lessSize = (Camera.main.orthographicSize * 2 * h) / w;
-        }
-
-        float scale = boardSize / lessSize;
-        //float offset = -scale + 1;
-
-        Debug.Log("scale: " + scale + " - lessSize: " + lessSize + " - boardSize: " + boardSize);
-
-        float xs = gameObject.transform.localScale.x / scale;
-        float ys = gameObject.transform.localScale.y / scale;
-        float zs = gameObject.transform.localScale.z / scale;
-
-        Vector3 scaleV = new Vector3(xs, ys, zs);
-
-        //gameObject.transform.localScale = scaleV;
-        #endregion
-
         #region Inicializacion tablero
         // Inicializamos el array board 
         for (int y = 0; y < dim; y++)
             for (int x = 0; x < dim; x++)
             {
+                // Instanciamos el prefab y lo hacemos hijo del boardmanager
                 renderBoard[y, x] = Instantiate(simpleBoardPrefab);
                 renderBoard[y, x].transform.SetParent(transform);
-                float xpos = (x * dim) + (interOffset * x) - interOffset;
-                float ypos = (y * dim) + (interOffset * y) - interOffset;
+
+                // calculamos la posicion (posicion en el tablero + espacio entre casillas)
+                float xpos = (x * dim) + (interOffset * x);
+                float ypos = (y * dim) + (interOffset * y);
                 renderBoard[y, x].transform.localPosition = new Vector3(xpos, ypos, 0);
                 //board[y, x].transform.localScale = scaleV;
             }
         #endregion
     }
 
+    float scaleFactorW, scaleFactorH, _scaleFactor;
+
+    /// <summary>
+    /// Aplica al boardManager un escalado y una transformacion segun la resolucion de la pantalla
+    /// </summary>
+    private void MapRescaling()
+    {
+        // resolucion de la pantalla en pixeles
+        int screenPixelsWidth = Screen.width;
+        int screenPixelsHeight = Screen.height;
+
+        // resolucion de la pantalla en unidades de Unity
+        float screenUnityHeight = Camera.main.orthographicSize * 2;
+        float screenUnityWidth = (screenPixelsWidth * screenUnityHeight) / screenPixelsHeight;
+
+        // tamaño del board tanto ancho como alto (3*3 + separacion entre casillas)
+        float boardSize = (dim * dim) + (2 * interOffset);
+        Debug.Log("W: " + screenPixelsWidth + " H: " + screenPixelsHeight);
+
+        // calculamos el factor de escala al que hay que escalar
+        scaleFactorW = screenUnityWidth / boardSize;
+        scaleFactorH = screenUnityHeight / boardSize;
+        _scaleFactor = Mathf.Min(scaleFactorW, scaleFactorH);
+
+        float xs = gameObject.transform.localScale.x * _scaleFactor;
+        float ys = gameObject.transform.localScale.y * _scaleFactor;
+        float zs = gameObject.transform.localScale.z * _scaleFactor;
+
+        gameObject.transform.localScale = new Vector3(xs, ys, zs);
+
+        // Centramos la cámara
+        float pos = (boardSize - 1) / 2;
+        Camera.main.transform.position = new Vector3(pos * _scaleFactor,
+            pos * _scaleFactor, Camera.main.transform.position.z);
+    }
 
 
     /// <summary>
@@ -141,9 +145,15 @@ public class BoardManager : MonoBehaviour
         return false;
     }
 
-
+    int countaux = 0;
     void Update()
     {
+        if (countaux++ == 0)
+        {
+            // escalado del tablero
+            MapRescaling();
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
