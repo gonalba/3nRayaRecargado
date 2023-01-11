@@ -7,9 +7,6 @@ using UnityEngine;
 /// </summary>
 public class DimensionalLogicBoard
 {
-
-    static int dim = 3;
-
     /// <summary>
     /// Id del jugador ganador. Es -1 si no ha ganado nadie y 0 si el resultado es empate.
     /// </summary>
@@ -18,7 +15,7 @@ public class DimensionalLogicBoard
     /// <summary>
     /// Este array representa el tablero lógico 3x3
     /// </summary>
-    private SimpleLogicBoard[,] board = new SimpleLogicBoard[dim, dim];
+    private SimpleLogicBoard[,] board = new SimpleLogicBoard[BoardManager.DIM(), BoardManager.DIM()];
 
 
 
@@ -26,8 +23,8 @@ public class DimensionalLogicBoard
     public DimensionalLogicBoard()
     {
         // Inicializamos el array board 
-        for (int y = 0; y < dim; y++)
-            for (int x = 0; x < dim; x++)
+        for (int y = 0; y < BoardManager.DIM(); y++)
+            for (int x = 0; x < BoardManager.DIM(); x++)
                 board[y, x] = new SimpleLogicBoard();
     }
 

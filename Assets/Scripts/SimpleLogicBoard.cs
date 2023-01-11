@@ -8,9 +8,6 @@ using UnityEngine;
 /// </summary>
 public class SimpleLogicBoard
 {
-
-    static int dim = 3;
-
     /// <summary>
     /// Id del jugador ganador. Es -1 si no ha ganado nadie y 0 si el resultado es empate.
     /// </summary>
@@ -19,7 +16,7 @@ public class SimpleLogicBoard
     /// <summary>
     /// Este array representa el tablero lógico 3x3
     /// </summary>
-    private int[,] board = new int[dim, dim];
+    private int[,] board = new int[BoardManager.DIM(), BoardManager.DIM()];
 
 
 
@@ -27,8 +24,8 @@ public class SimpleLogicBoard
     public SimpleLogicBoard()
     {
         // Inicializamos el array board 
-        for (int y = 0; y < dim; y++)
-            for (int x = 0; x < dim; x++)
+        for (int y = 0; y < BoardManager.DIM(); y++)
+            for (int x = 0; x < BoardManager.DIM(); x++)
                 board[y, x] = 0;
     }
 
@@ -40,7 +37,7 @@ public class SimpleLogicBoard
     private void checkWinner()
     {
         // Si en alguna fila todas las casillas son iguales y no vacías
-        for (int fila = 0; fila < 3; fila++)
+        for (int fila = 0; fila < BoardManager.DIM(); fila++)
             if ((board[fila, 0] == board[fila, 1])
                     && (board[fila, 0] == board[fila, 2])
                     && (board[fila, 0] != 0))
@@ -50,7 +47,7 @@ public class SimpleLogicBoard
             }
 
         // Lo mismo para las columnas
-        for (int columna = 0; columna < 3; columna++)
+        for (int columna = 0; columna < BoardManager.DIM(); columna++)
             if ((board[0, columna] == board[1, columna])
                     && (board[0, columna] == board[2, columna])
                     && (board[0, columna] != 0))
@@ -63,11 +60,28 @@ public class SimpleLogicBoard
         if ((board[0, 0] == board[1, 1])
                 && (board[0, 0] == board[2, 2])
                 && (board[0, 0] != 0))
+        {
             playerWin = board[0, 0];
+            return;
+        }
         else if ((board[0, 2] == board[1, 1])
                 && (board[0, 2] == board[2, 0])
                 && (board[0, 2] != 0))
+        {
             playerWin = board[0, 2];
+            return;
+        }
+
+        // Miro si ha habido empate
+        for (int i = 0; i < BoardManager.DIM(); i++)
+            for (int j = 0; j < BoardManager.DIM(); j++)
+            {
+                if (board[i, j] == 0)
+                    return;
+            }
+
+        playerWin = 0;
+
     }
 
 

@@ -1,58 +1,81 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Net.Sockets;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 //[ExecuteAlways]
 public class BoardManager : MonoBehaviour
 {
-    private float interOffset = 0.5f;
+    private static int _DIM = 3;
+    public static int DIM() { return _DIM; }
 
+    #region Logic board
+    private DimensionalLogicBoard _dimLogicBoard;
+    private int _currentXBoard = -1;
+    private int _currentYBoard = -1;
+
+    // id del jugador al que le toca jugar (1,2)
+    private int _turn;
+
+    // cuenta del turno (0,1)
+    private int _turnCount;
+    #endregion
+
+    #region Render board
     public SimpleRenderBoard simpleBoardPrefab;
+    private SimpleRenderBoard[,] _renderBoard = new SimpleRenderBoard[DIM(), DIM()];
+
+    // espacio que hay entre tableros
+    private float _interOffset = 0.5f;
+    #endregion
 
 
-    private int currentXBoard = -1;
-    private int currentYBoard = -1;
+    #region Scale attributes
+    private float _scaleFactorW;
+    private float _scaleFactorH;
+    private float _scaleFactor;
+    private int _screenPixelsWidth;
+    private int _screenPixelsHeight;
+    #endregion
 
-    static int dim = 3;
-
-    private SimpleRenderBoard[,] renderBoard = new SimpleRenderBoard[dim, dim];
-
-    private DimensionalLogicBoard dimLogicBoard;
-
-    private int turn;
-    private int turnCount;
-
-
+    #region Simple game
+    public bool _simpleGame;
+    private SimpleRenderBoard _renderBoardSimpleGame;
+    private SimpleLogicBoard _logicBoardSimpleGame;
+    #endregion
 
     // Start is called before the first frame update
     void Start()
     {
-        dimLogicBoard = new DimensionalLogicBoard();
+        _turnCount = Random.Range(0, 2);
+        _turn = _turnCount + 1;
+        if (!_simpleGame)
+        {
+            _dimLogicBoard = new DimensionalLogicBoard();
 
-        turnCount = Random.Range(0, 2);
-        turn = turnCount + 1;
+            #region Inicializacion tablero
+            // Inicializamos el array board 
+            for (int y = 0; y < DIM(); y++)
+                for (int x = 0; x < DIM(); x++)
+                {
+                    // Instanciamos el prefab y lo hacemos hijo del boardmanager
+                    _renderBoard[y, x] = Instantiate(simpleBoardPrefab);
+                    _renderBoard[y, x].transform.SetParent(transform);
 
-        #region Inicializacion tablero
-        // Inicializamos el array board 
-        for (int y = 0; y < dim; y++)
-            for (int x = 0; x < dim; x++)
-            {
-                // Instanciamos el prefab y lo hacemos hijo del boardmanager
-                renderBoard[y, x] = Instantiate(simpleBoardPrefab);
-                renderBoard[y, x].transform.SetParent(transform);
+                    // calculamos la posicion (posicion en el tablero + espacio entre casillas)
+                    float xpos = (x * DIM()) + (_interOffset * x);
+                    float ypos = (y * DIM()) + (_interOffset * y);
+                    _renderBoard[y, x].transform.localPosition = new Vector3(xpos, ypos, 0);
+                }
+            #endregion
+        }
+        else
+        {
+            _logicBoardSimpleGame = new SimpleLogicBoard();
 
-                // calculamos la posicion (posicion en el tablero + espacio entre casillas)
-                float xpos = (x * dim) + (interOffset * x);
-                float ypos = (y * dim) + (interOffset * y);
-                renderBoard[y, x].transform.localPosition = new Vector3(xpos, ypos, 0);
-                //board[y, x].transform.localScale = scaleV;
-            }
-        #endregion
+            // Instanciamos el prefab y lo hacemos hijo del boardmanager
+            _renderBoardSimpleGame = Instantiate(simpleBoardPrefab);
+            _renderBoardSimpleGame.transform.SetParent(transform);
+        }
     }
 
-    float scaleFactorW, scaleFactorH, _scaleFactor;
 
     /// <summary>
     /// Aplica al boardManager un escalado y una transformacion segun la resolucion de la pantalla
@@ -60,27 +83,23 @@ public class BoardManager : MonoBehaviour
     private void MapRescaling()
     {
         // resolucion de la pantalla en pixeles
-        int screenPixelsWidth = Screen.width;
-        int screenPixelsHeight = Screen.height;
+        _screenPixelsWidth = Screen.width;
+        _screenPixelsHeight = Screen.height;
 
         // resolucion de la pantalla en unidades de Unity
         float screenUnityHeight = Camera.main.orthographicSize * 2;
-        float screenUnityWidth = (screenPixelsWidth * screenUnityHeight) / screenPixelsHeight;
+        float screenUnityWidth = (_screenPixelsWidth * screenUnityHeight) / _screenPixelsHeight;
 
         // tamaño del board tanto ancho como alto (3*3 + separacion entre casillas)
-        float boardSize = (dim * dim) + (2 * interOffset);
-        Debug.Log("W: " + screenPixelsWidth + " H: " + screenPixelsHeight);
+        float boardSize = _simpleGame ? DIM() : (DIM() * DIM()) + (2 * _interOffset);
+        Debug.Log("W: " + _screenPixelsWidth + " H: " + _screenPixelsHeight);
 
         // calculamos el factor de escala al que hay que escalar
-        scaleFactorW = screenUnityWidth / boardSize;
-        scaleFactorH = screenUnityHeight / boardSize;
-        _scaleFactor = Mathf.Min(scaleFactorW, scaleFactorH);
+        _scaleFactorW = screenUnityWidth / boardSize;
+        _scaleFactorH = screenUnityHeight / boardSize;
+        _scaleFactor = Mathf.Min(_scaleFactorW, _scaleFactorH);
 
-        float xs = gameObject.transform.localScale.x * _scaleFactor;
-        float ys = gameObject.transform.localScale.y * _scaleFactor;
-        float zs = gameObject.transform.localScale.z * _scaleFactor;
-
-        gameObject.transform.localScale = new Vector3(xs, ys, zs);
+        gameObject.transform.localScale = new Vector3(_scaleFactor, _scaleFactor, _scaleFactor);
 
         // Centramos la cámara
         float pos = (boardSize - 1) / 2;
@@ -102,53 +121,65 @@ public class BoardManager : MonoBehaviour
         // donde hay que poner ficha (currentXBoard, currentYBoard), exceptuando si es
         // el primer movimiento (currentXBoard, currentYBoard) = (-1, -1); y 
         // si las coordenadas de la casilla se salen de la dimension del tablero hacemos return
-        if ((currentXBoard != xBoard || currentYBoard != yBoard) &&
-            (currentXBoard != -1 || currentYBoard != -1) ||
-            xCell < 0 || xCell > dim || yCell < 0 || yCell > dim)
+        if ((_currentXBoard != xBoard || _currentYBoard != yBoard) &&
+            (_currentXBoard != -1 || _currentYBoard != -1) ||
+            xCell < 0 || xCell > DIM() || yCell < 0 || yCell > DIM())
             return false;
 
 
-        // normalizamos las coordenadas de la casilla para que entre dentro del rango 3x3
-        xCell %= dim;
-        yCell %= dim;
-
-
         // si podemos colocar la ficha 
-        if (dimLogicBoard.TryFillCellByOnePlayer(yBoard, xBoard, yCell, xCell, player))
+        if (!_simpleGame && _dimLogicBoard.TryFillCellByOnePlayer(yBoard, xBoard, yCell, xCell, player))
         {
             // la colocamos en la celda correspondiente
-            renderBoard[yBoard, xBoard].ChangeCellToPlayer(yCell, xCell, player);
+            _renderBoard[yBoard, xBoard].ChangeCellToPlayer(yCell, xCell, player);
 
 
             // Cambiamos el color a azul del tablero actual si se ha ganado o empate.
             // A blanco si se puede seguir poniendo fichas
-            if (dimLogicBoard.WhoWinInSimpleBoard(xBoard, yBoard) >= 0)
-                renderBoard[yBoard, xBoard].ChangeColor(Color.blue);
-            else
-                renderBoard[yBoard, xBoard].ChangeColor(Color.white);
-
-            if (dimLogicBoard.WhoWinInSimpleBoard(xCell, yCell) >= 0)
+            int whoWin = _dimLogicBoard.WhoWinInSimpleBoard(xBoard, yBoard);
+            if (whoWin >= 0)
             {
-                currentXBoard = -1;
-                currentYBoard = -1;
+                if (whoWin == 1) _renderBoard[yBoard, xBoard].ChangeColor(Color.blue);
+                else if (whoWin == 2) _renderBoard[yBoard, xBoard].ChangeColor(Color.red);
+                else _renderBoard[yBoard, xBoard].ChangeColor(new Color(1, 0.72f, 0.31f, 1));
+            }
+            else
+                _renderBoard[yBoard, xBoard].ChangeColor(Color.white);
+
+            if (_dimLogicBoard.WhoWinInSimpleBoard(xCell, yCell) >= 0)
+            {
+                _currentXBoard = -1;
+                _currentYBoard = -1;
             }
             else
             {
-                renderBoard[yCell, xCell].ChangeColor(Color.green);
+                _renderBoard[yCell, xCell].ChangeColor(Color.green);
 
-                currentXBoard = xCell;
-                currentYBoard = yCell;
+                _currentXBoard = xCell;
+                _currentYBoard = yCell;
             }
+            return true;
+        }
+        else if (_simpleGame && _logicBoardSimpleGame.WhoWin() == -1 && _logicBoardSimpleGame.TryFillCellByOnePlayer(yCell, xCell, player))
+        {
+            // la colocamos en la celda correspondiente
+            _renderBoardSimpleGame.ChangeCellToPlayer(yCell, xCell, player);
+
+            if (_logicBoardSimpleGame.WhoWin() == 1) _renderBoardSimpleGame.ChangeColor(Color.blue);
+            else if (_logicBoardSimpleGame.WhoWin() == 2) _renderBoardSimpleGame.ChangeColor(Color.red);
+            else if(_logicBoardSimpleGame.WhoWin() == 0) _renderBoardSimpleGame.ChangeColor(new Color(1, 0.72f, 0.31f, 1));
+
             return true;
         }
 
         return false;
     }
 
-    int countaux = 0;
+
+
     void Update()
     {
-        if (countaux++ == 0)
+        if (_screenPixelsWidth != Screen.width || _screenPixelsHeight != Screen.height)
         {
             // escalado del tablero
             MapRescaling();
@@ -171,16 +202,19 @@ public class BoardManager : MonoBehaviour
 
                 if (sb)
                 {
-                    for (int j = 0; j < dim; j++)
-                    {
-                        for (int k = 0; k < dim; k++)
+                    if (!_simpleGame)
+                        for (int j = 0; j < DIM(); j++)
                         {
-                            if (renderBoard[j, k].Equals(sb))
+                            for (int k = 0; k < DIM(); k++)
                             {
-                                boardCoords = new Vector2(k, j);
+                                if (_renderBoard[j, k].Equals(sb))
+                                {
+                                    boardCoords = new Vector2(k, j);
+                                }
                             }
                         }
-                    }
+                    else
+                        boardCoords.x = boardCoords.y = 0;
                 }
                 else if (c)
                 {
@@ -195,13 +229,13 @@ public class BoardManager : MonoBehaviour
                 int xc = (int)cellCoords.x, yc = (int)cellCoords.y;
                 int xb = (int)boardCoords.x, yb = (int)boardCoords.y;
 
-                if (PlayerTurn(xc, yc, xb, yb, turn))
+                if (PlayerTurn(xc, yc, xb, yb, _turn))
                 {
-                    turnCount = ++turnCount % 2;
-                    turn = turnCount + 1;
-                    Debug.Log(turn);
+                    _turnCount = ++_turnCount % 2;
+                    _turn = _turnCount + 1;
                 }
             }
         }
+
     }//fin update
 }
