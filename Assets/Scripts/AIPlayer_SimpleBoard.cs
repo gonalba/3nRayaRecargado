@@ -7,20 +7,28 @@ using UnityEngine;
 /// <summary>
 /// IA para resolver un tablero simple. Algoritmo sacado de https://github.com/parzibyte/tic-tac-toe-c
 /// </summary>
-public class PlayerAI_SimpleBoard
+public class AIPlayer_SimpleBoard
 {
     private int CONTEO_PARA_GANAR = 3;
     private int _playerId;
     private Vector2 _nextPosition;
-    private BoardManager _boardManager;
+    private LevelManager _boardManager;
 
     private SimpleLogicBoard _currentLogicBoard;
-    public PlayerAI_SimpleBoard(BoardManager bm, int playerId)
+    public AIPlayer_SimpleBoard(LevelManager bm, int playerId)
     {
         _boardManager = bm;
         _playerId = playerId;
     }
 
+
+    public Vector2 SelectSimpleBoard()
+    {
+        Vector2 boardCoords = new Vector2();
+        _currentLogicBoard = _boardManager.SelectLogicBoard(out boardCoords);
+
+        return boardCoords;
+    }
 
     /// <summary>
     /// Metodo de salida que dice que casilla tiene que marcar la IA
@@ -28,10 +36,8 @@ public class PlayerAI_SimpleBoard
     /// <returns>
     /// Devuelve la posicion de la casilla a marcar
     /// </returns>
-    public Vector2 GetCoords()
+    public Vector2 SelectCoords()
     {
-        _currentLogicBoard = _boardManager.GetLogicBoard();
-
         //La forma en la que la IA tiene que calcular la mejor coordenada es:
         //1.Ganar si se puede
         if (WinIfCan(_playerId)) return _nextPosition;
@@ -61,9 +67,9 @@ public class PlayerAI_SimpleBoard
     /// </returns>
     private bool WinIfCan(int playerId)
     {
-        for (int x = 0; x < BoardManager.DIM(); x++)
+        for (int x = 0; x < LevelManager.DIM(); x++)
         {
-            for (int y = 0; y < BoardManager.DIM(); y++)
+            for (int y = 0; y < LevelManager.DIM(); y++)
             {
                 if (IsEmptyCoords(x, y))
                 {
@@ -106,11 +112,11 @@ public class PlayerAI_SimpleBoard
     {
         int value = playerId;
 
-        int valueX1 = _currentLogicBoard.GetValueofCell((x + 1) % BoardManager.DIM(), y);
-        int valueX2 = _currentLogicBoard.GetValueofCell((x + 2) % BoardManager.DIM(), y);
+        int valueX1 = _currentLogicBoard.GetValueofCell((x + 1) % LevelManager.DIM(), y);
+        int valueX2 = _currentLogicBoard.GetValueofCell((x + 2) % LevelManager.DIM(), y);
 
-        int valueY1 = _currentLogicBoard.GetValueofCell(x, (y + 1) % BoardManager.DIM());
-        int valueY2 = _currentLogicBoard.GetValueofCell(x, (y + 2) % BoardManager.DIM());
+        int valueY1 = _currentLogicBoard.GetValueofCell(x, (y + 1) % LevelManager.DIM());
+        int valueY2 = _currentLogicBoard.GetValueofCell(x, (y + 2) % LevelManager.DIM());
 
         // Si en la fila todas las casillas son iguales y no vacías
         if ((value == valueX1) && (value == valueX2) && (value != 0))
@@ -125,8 +131,8 @@ public class PlayerAI_SimpleBoard
         }
 
 
-        int valueXY1 = _currentLogicBoard.GetValueofCell((x + 1) % BoardManager.DIM(), (y + 1) % BoardManager.DIM());
-        int valueXY2 = _currentLogicBoard.GetValueofCell((x + 2) % BoardManager.DIM(), (y + 2) % BoardManager.DIM());
+        int valueXY1 = _currentLogicBoard.GetValueofCell((x + 1) % LevelManager.DIM(), (y + 1) % LevelManager.DIM());
+        int valueXY2 = _currentLogicBoard.GetValueofCell((x + 2) % LevelManager.DIM(), (y + 2) % LevelManager.DIM());
 
         // Y finalmente miro las dos diagonales
 
@@ -139,17 +145,17 @@ public class PlayerAI_SimpleBoard
         // Diagonal 2,0|1,1|0,2
 
         // Calculamos las coordenadas de la diagonal
-        int x1Inv = (x + 1) % BoardManager.DIM();
+        int x1Inv = (x + 1) % LevelManager.DIM();
         int y1Inv = y - 1;
         if (y1Inv == -1)
-            y1Inv = BoardManager.DIM() - 1;
+            y1Inv = LevelManager.DIM() - 1;
 
-        int x2Inv = (x + 2) % BoardManager.DIM();
+        int x2Inv = (x + 2) % LevelManager.DIM();
         int y2Inv = y - 2;
         if (y2Inv == -1)
-            y2Inv = BoardManager.DIM() - 1;
+            y2Inv = LevelManager.DIM() - 1;
         else if (y2Inv == -2)
-            y2Inv = BoardManager.DIM() - 2;
+            y2Inv = LevelManager.DIM() - 2;
 
         // accedemos al valor de las coordenadas calculadas
         int valueXY1Inv = _currentLogicBoard.GetValueofCell(x1Inv, y1Inv);
@@ -173,8 +179,8 @@ public class PlayerAI_SimpleBoard
     /// 1 -> si la casilla tiene opciones de 3 en raya y tiene una casilla puesta.
     /// 2 -> si la casilla tiene opciones de 3 en raya y tiene dos casilla puesta.
     /// </summary>
-    /// <param name="playerId"></param>
-    /// <param name="opponentId"></param>
+    /// <param name="playerId">Id del jugador</param>
+    /// <param name="opponentId">Id del oponente</param>
     /// <returns>
     /// Si el movimiento tiene una puntuacion inferior a 2 entonces devuelve FALSE. Devuelve TRUE en caso contrario.
     /// </returns>
@@ -206,9 +212,9 @@ public class PlayerAI_SimpleBoard
     {
         int conteoMayor = 0, xConteoMayor = -1, yConteoMayor = -1;
 
-        for (int x = 0; x < BoardManager.DIM(); x++)
+        for (int x = 0; x < LevelManager.DIM(); x++)
         {
-            for (int y = 0; y < BoardManager.DIM(); y++)
+            for (int y = 0; y < LevelManager.DIM(); y++)
             {
                 if (!IsEmptyCoords(x, y))
                 {
@@ -245,9 +251,9 @@ public class PlayerAI_SimpleBoard
     {
         int conteoMayor = 0;
         int x, y;
-        for (y = 0; y < BoardManager.DIM(); y++)
+        for (y = 0; y < LevelManager.DIM(); y++)
         {
-            for (x = 0; x < BoardManager.DIM(); x++)
+            for (x = 0; x < LevelManager.DIM(); x++)
             {
                 // Colocamos y contamos el puntaje
                 int conteoTemporal;
@@ -325,7 +331,7 @@ public class PlayerAI_SimpleBoard
     /// </returns>
     private int CountRight(int playerId, int x, int y, int newX, int newY)
     {
-        int xFin = (x + CONTEO_PARA_GANAR < BoardManager.DIM()) ? x + CONTEO_PARA_GANAR - 1 : BoardManager.DIM() - 1;
+        int xFin = (x + CONTEO_PARA_GANAR < LevelManager.DIM()) ? x + CONTEO_PARA_GANAR - 1 : LevelManager.DIM() - 1;
         int contador = 0;
 
         int opponentId = ((playerId + 1) % 3) + 1;
@@ -358,7 +364,7 @@ public class PlayerAI_SimpleBoard
     /// </returns>
     private int CountUpRight(int playerId, int x, int y, int newX, int newY)
     {
-        int xFin = (x + CONTEO_PARA_GANAR < BoardManager.DIM()) ? x + CONTEO_PARA_GANAR - 1 : BoardManager.DIM() - 1;
+        int xFin = (x + CONTEO_PARA_GANAR < LevelManager.DIM()) ? x + CONTEO_PARA_GANAR - 1 : LevelManager.DIM() - 1;
         int yInicio = (y - CONTEO_PARA_GANAR >= 0) ? y - CONTEO_PARA_GANAR + 1 : 0;
         int contador = 0;
 
@@ -394,8 +400,8 @@ public class PlayerAI_SimpleBoard
     /// </returns>
     private int CountBottomRight(int playerId, int x, int y, int newX, int newY)
     {
-        int xFin = (x + CONTEO_PARA_GANAR < BoardManager.DIM()) ? x + CONTEO_PARA_GANAR - 1 : BoardManager.DIM() - 1;
-        int yFin = (y + CONTEO_PARA_GANAR < BoardManager.DIM()) ? y + CONTEO_PARA_GANAR - 1 : BoardManager.DIM() - 1;
+        int xFin = (x + CONTEO_PARA_GANAR < LevelManager.DIM()) ? x + CONTEO_PARA_GANAR - 1 : LevelManager.DIM() - 1;
+        int yFin = (y + CONTEO_PARA_GANAR < LevelManager.DIM()) ? y + CONTEO_PARA_GANAR - 1 : LevelManager.DIM() - 1;
         int contador = 0;
 
         int opponentId = ((playerId + 1) % 3) + 1;
@@ -444,8 +450,8 @@ public class PlayerAI_SimpleBoard
         int y = 0;
         do
         {
-            x = UnityEngine.Random.Range(0, BoardManager.DIM() - 1);
-            y = UnityEngine.Random.Range(0, BoardManager.DIM() - 1);
+            x = UnityEngine.Random.Range(0, LevelManager.DIM() - 1);
+            y = UnityEngine.Random.Range(0, LevelManager.DIM() - 1);
         } while (_currentLogicBoard.WhoWin() == -1 && !IsEmptyCoords(x, y));
     }
 

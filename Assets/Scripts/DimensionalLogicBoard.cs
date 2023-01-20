@@ -15,7 +15,7 @@ public class DimensionalLogicBoard
     /// <summary>
     /// Este array representa el tablero lógico 3x3
     /// </summary>
-    private SimpleLogicBoard[,] _board = new SimpleLogicBoard[BoardManager.DIM(), BoardManager.DIM()];
+    private SimpleLogicBoard[,] _board = new SimpleLogicBoard[LevelManager.DIM(), LevelManager.DIM()];
 
 
 
@@ -23,8 +23,8 @@ public class DimensionalLogicBoard
     public DimensionalLogicBoard()
     {
         // Inicializamos el array board 
-        for (int y = 0; y < BoardManager.DIM(); y++)
-            for (int x = 0; x < BoardManager.DIM(); x++)
+        for (int y = 0; y < LevelManager.DIM(); y++)
+            for (int x = 0; x < LevelManager.DIM(); x++)
                 _board[y, x] = new SimpleLogicBoard();
     }
 
@@ -39,7 +39,7 @@ public class DimensionalLogicBoard
     private int checkWinner()
     {
         // Si en alguna fila todas las casillas son iguales y no vacías
-        for (int fila = 0; fila < BoardManager.DIM(); fila++)
+        for (int fila = 0; fila < LevelManager.DIM(); fila++)
             if ((_board[fila, 0].WhoWin() == _board[fila, 1].WhoWin())
                     && (_board[fila, 0].WhoWin() == _board[fila, 2].WhoWin())
                     && (_board[fila, 0].WhoWin() > 0))
@@ -48,7 +48,7 @@ public class DimensionalLogicBoard
             }
 
         // Lo mismo para las columnas
-        for (int columna = 0; columna < BoardManager.DIM(); columna++)
+        for (int columna = 0; columna < LevelManager.DIM(); columna++)
             if ((_board[0, columna].WhoWin() == _board[1, columna].WhoWin())
                     && (_board[0, columna].WhoWin() == _board[2, columna].WhoWin())
                     && (_board[0, columna].WhoWin() > 0))
@@ -66,8 +66,8 @@ public class DimensionalLogicBoard
                 && (_board[0, 2].WhoWin() > 0))
             return _board[0, 2].WhoWin();
 
-        for (int i = 0; i < BoardManager.DIM(); i++)
-            for (int j = 0; j < BoardManager.DIM(); j++)
+        for (int i = 0; i < LevelManager.DIM(); i++)
+            for (int j = 0; j < LevelManager.DIM(); j++)
             {
                 if (_board[i, j].WhoWin() == -1)
                     return -1;
@@ -93,7 +93,7 @@ public class DimensionalLogicBoard
 
         bool aux = _board[ySimpleBorad, xSimpleBoard].TryFillCellByOnePlayer(yCell, xCell, pId);
 
-        checkWinner();
+        _playerWin = checkWinner();
 
         return aux;
     }

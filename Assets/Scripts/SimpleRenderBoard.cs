@@ -8,22 +8,22 @@ public class SimpleRenderBoard : MonoBehaviour
     public RenderCell cellPrefab;
     public BoxCollider bCollider;
 
-    private RenderCell[,] renderBoard = new RenderCell[BoardManager.DIM(), BoardManager.DIM()];
+    private RenderCell[,] renderBoard = new RenderCell[LevelManager.DIM(), LevelManager.DIM()];
 
 
     // Start is called before the first frame update
     void Start()
     {
-        for (int y = 0; y < BoardManager.DIM(); y++)
-            for (int x = 0; x < BoardManager.DIM(); x++)
+        for (int y = 0; y < LevelManager.DIM(); y++)
+            for (int x = 0; x < LevelManager.DIM(); x++)
             {
                 renderBoard[y, x] = Instantiate(cellPrefab);
                 renderBoard[y, x].transform.SetParent(transform);
                 renderBoard[y, x].transform.localPosition = new Vector3(x, y, 0);
             }
 
-        float sizeCollX = cellPrefab.GetSizeCellX() * BoardManager.DIM();
-        float sizeCollY = cellPrefab.GetSizeCellY() * BoardManager.DIM();
+        float sizeCollX = cellPrefab.GetSizeCellX() * LevelManager.DIM();
+        float sizeCollY = cellPrefab.GetSizeCellY() * LevelManager.DIM();
 
         float centerPosX = (sizeCollX - cellPrefab.GetSizeCellX()) / 2;
         float centerPosY = (sizeCollY - cellPrefab.GetSizeCellY()) / 2;
@@ -39,8 +39,8 @@ public class SimpleRenderBoard : MonoBehaviour
 
     public void ChangeColor(Color c)
     {
-        for (int y = 0; y < BoardManager.DIM(); y++)
-            for (int x = 0; x < BoardManager.DIM(); x++)
+        for (int y = 0; y < LevelManager.DIM(); y++)
+            for (int x = 0; x < LevelManager.DIM(); x++)
                 renderBoard[y, x].ChangeColor(c);
     }
 }
