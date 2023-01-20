@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //[ExecuteAlways]
-public class Cell : MonoBehaviour
+public class RenderCell : MonoBehaviour
 {
     public SpriteRenderer empty = null;
     public SpriteRenderer x = null;
@@ -19,9 +19,9 @@ public class Cell : MonoBehaviour
             return;
         }
 
-        empty.gameObject.SetActive(true);
-        x.gameObject.SetActive(false);
-        o.gameObject.SetActive(false);
+        //empty.gameObject.SetActive(true);
+        //x.gameObject.SetActive(false);
+        //o.gameObject.SetActive(false);
 
         bCollider.size = empty.size;
     }

@@ -6,17 +6,31 @@ public class BoardManager : MonoBehaviour
     private static int _DIM = 3;
     public static int DIM() { return _DIM; }
 
-    #region Logic board
-    private DimensionalLogicBoard _dimLogicBoard;
-    private int _currentXBoard = -1;
-    private int _currentYBoard = -1;
-
     // id del jugador al que le toca jugar (1,2)
     private int _turn;
 
     // cuenta del turno (0,1)
     private int _turnCount;
+
+    // Id del jugador
+    private int player1Id;
+    private int player2Id;
+
+    #region Dimensional game logic board
+    private DimensionalLogicBoard _dimLogicBoard;
+    private int _currentXBoard = -1;
+    private int _currentYBoard = -1;
     #endregion
+
+
+    #region Simple game logic board
+    public bool _simpleGame;
+    private SimpleRenderBoard _renderBoardSimpleGame;
+    private SimpleLogicBoard _logicBoardSimpleGame;
+
+    private PlayerAI_SimpleBoard playerIA;
+    #endregion
+
 
     #region Render board
     public SimpleRenderBoard simpleBoardPrefab;
@@ -35,17 +49,20 @@ public class BoardManager : MonoBehaviour
     private int _screenPixelsHeight;
     #endregion
 
-    #region Simple game
-    public bool _simpleGame;
-    private SimpleRenderBoard _renderBoardSimpleGame;
-    private SimpleLogicBoard _logicBoardSimpleGame;
-    #endregion
+
+    #region Unity implementation
 
     // Start is called before the first frame update
     void Start()
     {
-        _turnCount = Random.Range(0, 2);
+        _turnCount = 0;// Random.Range(0, 2);
         _turn = _turnCount + 1;
+
+        Debug.Log("Turno: " + _turn);
+
+        player1Id = 1;
+        player2Id = 2;
+
         if (!_simpleGame)
         {
             _dimLogicBoard = new DimensionalLogicBoard();
@@ -65,6 +82,7 @@ public class BoardManager : MonoBehaviour
                     _renderBoard[y, x].transform.localPosition = new Vector3(xpos, ypos, 0);
                 }
             #endregion
+
         }
         else
         {
@@ -73,8 +91,83 @@ public class BoardManager : MonoBehaviour
             // Instanciamos el prefab y lo hacemos hijo del boardmanager
             _renderBoardSimpleGame = Instantiate(simpleBoardPrefab);
             _renderBoardSimpleGame.transform.SetParent(transform);
+            
+            playerIA = new PlayerAI_SimpleBoard(this, player2Id);
         }
     }
+
+
+    void Update()
+    {
+        if (_screenPixelsWidth != Screen.width || _screenPixelsHeight != Screen.height)
+        {
+            // escalado del tablero
+            MapRescaling();
+        }
+
+        Vector2 cellCoords = new Vector2(-1, -1);
+        Vector2 boardCoords = new Vector2(-1, -1);
+
+        //if (Input.GetMouseButtonDown(0))
+        if (_turn == player1Id && Input.GetMouseButtonDown(0) && GetLogicBoard().WhoWin() == -1)
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit[] hits = Physics.RaycastAll(ray, 100.0f);
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                RaycastHit hitInfo = hits[i];
+                SimpleRenderBoard sb = hitInfo.transform.GetComponent<SimpleRenderBoard>();
+                RenderCell c = hitInfo.transform.GetComponent<RenderCell>();
+
+                if (sb)
+                {
+                    if (!_simpleGame)
+                        for (int j = 0; j < DIM(); j++)
+                        {
+                            for (int k = 0; k < DIM(); k++)
+                            {
+                                if (_renderBoard[j, k].Equals(sb))
+                                {
+                                    boardCoords = new Vector2(k, j);
+                                }
+                            }
+                        }
+                    else
+                        boardCoords.x = boardCoords.y = 0;
+                }
+                else if (c)
+                {
+                    cellCoords = c.transform.localPosition;
+                }
+            }
+        }
+        else if (_turn == player2Id && GetLogicBoard().WhoWin() == -1)
+        {
+            Vector2 pos = playerIA.GetCoords();
+            boardCoords.x = 0;
+            boardCoords.y = 0;
+
+            cellCoords.x = pos.x;
+            cellCoords.y = pos.y;
+        }
+
+
+        if (boardCoords.x != -1 && boardCoords.y != -1 && cellCoords.x != -1 && cellCoords.y != -1 && GetLogicBoard().WhoWin() == -1)
+        {
+
+            int xc = (int)cellCoords.x, yc = (int)cellCoords.y;
+            int xb = (int)boardCoords.x, yb = (int)boardCoords.y;
+
+            if (PlayerTurn(xc, yc, xb, yb, _turn))
+            {
+                _turnCount = ++_turnCount % 2;
+                _turn = _turnCount + 1;
+            }
+        }
+
+    }//fin update
+    #endregion
 
 
     /// <summary>
@@ -167,7 +260,7 @@ public class BoardManager : MonoBehaviour
 
             if (_logicBoardSimpleGame.WhoWin() == 1) _renderBoardSimpleGame.ChangeColor(Color.blue);
             else if (_logicBoardSimpleGame.WhoWin() == 2) _renderBoardSimpleGame.ChangeColor(Color.red);
-            else if(_logicBoardSimpleGame.WhoWin() == 0) _renderBoardSimpleGame.ChangeColor(new Color(1, 0.72f, 0.31f, 1));
+            else if (_logicBoardSimpleGame.WhoWin() == 0) _renderBoardSimpleGame.ChangeColor(new Color(1, 0.72f, 0.31f, 1));
 
             return true;
         }
@@ -175,67 +268,28 @@ public class BoardManager : MonoBehaviour
         return false;
     }
 
-
-
-    void Update()
+    /// <summary>
+    /// Método que permite acceder al tablero logico.
+    /// </summary>
+    /// <returns>
+    /// Devuelve el tablero logico si es una partida de tres en raya normal. Si es dimensional entonces devuelve el tablero simple actual y si no hay ninguno marcado, devuelve uno aleatorio
+    /// </returns>
+    public SimpleLogicBoard GetLogicBoard()
     {
-        if (_screenPixelsWidth != Screen.width || _screenPixelsHeight != Screen.height)
+        if (_simpleGame) 
+            return _logicBoardSimpleGame;
+        else if (_currentXBoard > 0 && _currentYBoard > 0)
+            return _dimLogicBoard.GetLogicBoard(_currentXBoard, _currentYBoard);
+        
+        int x, y;
+        do
         {
-            // escalado del tablero
-            MapRescaling();
-        }
+            x = Random.Range(0, DIM());
+            y = Random.Range(0, DIM());
+        } while (_dimLogicBoard.GetLogicBoard(x, y).WhoWin() != -1);
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit[] hits = Physics.RaycastAll(ray, 100.0f);
-
-            Vector2 cellCoords = new Vector2(-1, -1);
-            Vector2 boardCoords = new Vector2(-1, -1);
+        return _dimLogicBoard.GetLogicBoard(x, y);
+    }
 
 
-            for (int i = 0; i < hits.Length; i++)
-            {
-                RaycastHit hitInfo = hits[i];
-                SimpleRenderBoard sb = hitInfo.transform.GetComponent<SimpleRenderBoard>();
-                Cell c = hitInfo.transform.GetComponent<Cell>();
-
-                if (sb)
-                {
-                    if (!_simpleGame)
-                        for (int j = 0; j < DIM(); j++)
-                        {
-                            for (int k = 0; k < DIM(); k++)
-                            {
-                                if (_renderBoard[j, k].Equals(sb))
-                                {
-                                    boardCoords = new Vector2(k, j);
-                                }
-                            }
-                        }
-                    else
-                        boardCoords.x = boardCoords.y = 0;
-                }
-                else if (c)
-                {
-                    cellCoords = c.transform.localPosition;
-                }
-
-            }
-
-            if (boardCoords.x != -1 && boardCoords.y != -1 && cellCoords.x != -1 && cellCoords.y != -1)
-            {
-
-                int xc = (int)cellCoords.x, yc = (int)cellCoords.y;
-                int xb = (int)boardCoords.x, yb = (int)boardCoords.y;
-
-                if (PlayerTurn(xc, yc, xb, yb, _turn))
-                {
-                    _turnCount = ++_turnCount % 2;
-                    _turn = _turnCount + 1;
-                }
-            }
-        }
-
-    }//fin update
 }

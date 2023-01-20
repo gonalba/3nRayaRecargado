@@ -5,10 +5,10 @@ using UnityEngine;
 //[ExecuteAlways]
 public class SimpleRenderBoard : MonoBehaviour
 {
-    public Cell cellPrefab;
+    public RenderCell cellPrefab;
     public BoxCollider bCollider;
 
-    private Cell[,] renderBoard = new Cell[BoardManager.DIM(), BoardManager.DIM()];
+    private RenderCell[,] renderBoard = new RenderCell[BoardManager.DIM(), BoardManager.DIM()];
 
 
     // Start is called before the first frame update
