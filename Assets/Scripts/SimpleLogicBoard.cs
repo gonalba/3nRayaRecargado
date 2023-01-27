@@ -24,9 +24,9 @@ public class SimpleLogicBoard
     public SimpleLogicBoard()
     {
         // Inicializamos el array board 
-        for (int y = 0; y < LevelManager.DIM(); y++)
-            for (int x = 0; x < LevelManager.DIM(); x++)
-                _board[y, x] = 0;
+        for (int r = 0; r < LevelManager.DIM(); r++)
+            for (int c = 0; c < LevelManager.DIM(); c++)
+                _board[r, c] = 0;
     }
 
 
@@ -43,21 +43,21 @@ public class SimpleLogicBoard
     private int checkWinner()
     {
         // Si en alguna fila todas las casillas son iguales y no vacías
-        for (int fila = 0; fila < LevelManager.DIM(); fila++)
-            if ((_board[fila, 0] == _board[fila, 1])
-                    && (_board[fila, 0] == _board[fila, 2])
-                    && (_board[fila, 0] != 0))
+        for (int row = 0; row < LevelManager.DIM(); row++)
+            if ((_board[row, 0] == _board[row, 1])
+                    && (_board[row, 0] == _board[row, 2])
+                    && (_board[row, 0] != 0))
             {
-                return _board[fila, 0];
+                return _board[row, 0];
             }
 
         // Lo mismo para las columnas
-        for (int columna = 0; columna < LevelManager.DIM(); columna++)
-            if ((_board[0, columna] == _board[1, columna])
-                    && (_board[0, columna] == _board[2, columna])
-                    && (_board[0, columna] != 0))
+        for (int col = 0; col < LevelManager.DIM(); col++)
+            if ((_board[0, col] == _board[1, col])
+                    && (_board[0, col] == _board[2, col])
+                    && (_board[0, col] != 0))
             {
-                return _board[0, columna];
+                return _board[0, col];
             }
 
         // Y finalmente miro las dos diagonales
@@ -75,10 +75,10 @@ public class SimpleLogicBoard
         }
 
         // Miro si ha habido empate: si hay alguna casilla vacia, entonces no hay empate
-        for (int i = 0; i < LevelManager.DIM(); i++)
-            for (int j = 0; j < LevelManager.DIM(); j++)
+        for (int row = 0; row < LevelManager.DIM(); row++)
+            for (int col = 0; col < LevelManager.DIM(); col++)
             {
-                if (_board[i, j] == 0)
+                if (_board[row, col] == 0)
                     return -1;
             }
 
@@ -88,20 +88,20 @@ public class SimpleLogicBoard
 
 
     /// <summary>
-    /// Player p try to fill the cell with coords xy 
+    /// Player p try to fill the cell with coords (row,col) 
     /// </summary>
-    /// <param name="x">Column</param>
-    /// <param name="y">Row</param>
+    /// <param name="row">Cell row</param>
+    /// <param name="col">Cell column</param>
     /// <param name="pId">Player id</param>
     /// <returns>
-    /// True if player fill the cell xy. False otherwise
+    /// True if player fill the cell (row,col). False otherwise
     /// </returns>
-    public bool TryFillCellByOnePlayer(int y, int x, int pId)
+    public bool TryFillCellByOnePlayer(int row, int col, int pId)
     {
-        if (_board[y, x] != 0)
+        if (_board[row, col] != 0)
             return false;
 
-        _board[y, x] = pId;
+        _board[row, col] = pId;
 
         _playerWin = checkWinner();
 
@@ -119,5 +119,13 @@ public class SimpleLogicBoard
     public int WhoWin() { return _playerWin; }
 
 
-    public int GetValueofCell(int x, int y) { return _board[y, x]; }
+    /// <summary>
+    /// Metodo que permite acceder al valor de la celda [row,col]
+    /// </summary>
+    /// <param name="row">Cell row</param>
+    /// <param name="col">Cell column</param>
+    /// <returns>
+    /// Devuelve un INT que representa el valor de la celda [row,col]
+    /// </returns>
+    public int GetValueofCell(int row, int col) { return _board[row, col]; }
 }

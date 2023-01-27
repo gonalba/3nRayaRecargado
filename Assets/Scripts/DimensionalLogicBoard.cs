@@ -23,9 +23,9 @@ public class DimensionalLogicBoard
     public DimensionalLogicBoard()
     {
         // Inicializamos el array board 
-        for (int y = 0; y < LevelManager.DIM(); y++)
-            for (int x = 0; x < LevelManager.DIM(); x++)
-                _board[y, x] = new SimpleLogicBoard();
+        for (int r = 0; r < LevelManager.DIM(); r++)
+            for (int c = 0; c < LevelManager.DIM(); c++)
+                _board[r, c] = new SimpleLogicBoard();
     }
 
 
@@ -39,21 +39,21 @@ public class DimensionalLogicBoard
     private int checkWinner()
     {
         // Si en alguna fila todas las casillas son iguales y no vacías
-        for (int fila = 0; fila < LevelManager.DIM(); fila++)
-            if ((_board[fila, 0].WhoWin() == _board[fila, 1].WhoWin())
-                    && (_board[fila, 0].WhoWin() == _board[fila, 2].WhoWin())
-                    && (_board[fila, 0].WhoWin() > 0))
+        for (int row = 0; row < LevelManager.DIM(); row++)
+            if ((_board[row, 0].WhoWin() == _board[row, 1].WhoWin())
+                    && (_board[row, 0].WhoWin() == _board[row, 2].WhoWin())
+                    && (_board[row, 0].WhoWin() > 0))
             {
-                return _board[fila, 0].WhoWin();
+                return _board[row, 0].WhoWin();
             }
 
         // Lo mismo para las columnas
-        for (int columna = 0; columna < LevelManager.DIM(); columna++)
-            if ((_board[0, columna].WhoWin() == _board[1, columna].WhoWin())
-                    && (_board[0, columna].WhoWin() == _board[2, columna].WhoWin())
-                    && (_board[0, columna].WhoWin() > 0))
+        for (int col = 0; col < LevelManager.DIM(); col++)
+            if ((_board[0, col].WhoWin() == _board[1, col].WhoWin())
+                    && (_board[0, col].WhoWin() == _board[2, col].WhoWin())
+                    && (_board[0, col].WhoWin() > 0))
             {
-                return _board[0, columna].WhoWin();
+                return _board[0, col].WhoWin();
             }
 
         // Y finalmente miro las dos diagonales
@@ -78,20 +78,22 @@ public class DimensionalLogicBoard
 
 
     /// <summary>
-    /// Player p try to fill the cell with coords xy 
+    /// Player p try to fill the cell with coords (row,col) 
     /// </summary>
-    /// <param name="x">Column</param>
-    /// <param name="y">Row</param>
-    /// <param name="pId">Player id</param>
+    /// <param name="sbRow">Simple Board Row</param>
+    /// <param name="sbCol">Simple Board Column</param>
+    /// <param name="cellRow">Cell Row</param>
+    /// <param name="cellCol">Cell Row</param>
+    /// <param name="player">Player ID</param>
     /// <returns>
-    /// True if player fill the cell xy. False otherwise
+    /// True if player fill the cell (row,col). False otherwise
     /// </returns>
-    public bool TryFillCellByOnePlayer(int ySimpleBorad, int xSimpleBoard, int yCell, int xCell, int pId)
+    public bool TryFillCellByOnePlayer(int sbRow, int sbCol, int cellRow, int cellCol, int player)
     {
-        if (_board[ySimpleBorad, xSimpleBoard].WhoWin() != -1 || WhoWin() != -1)
+        if (_board[sbRow, sbCol].WhoWin() != -1 || WhoWin() != -1)
             return false;
 
-        bool aux = _board[ySimpleBorad, xSimpleBoard].TryFillCellByOnePlayer(yCell, xCell, pId);
+        bool aux = _board[sbRow, sbCol].TryFillCellByOnePlayer(cellRow, cellCol, player);
 
         _playerWin = checkWinner();
 
@@ -111,14 +113,22 @@ public class DimensionalLogicBoard
     /// <summary>
     /// Método que sirve para consultar quien ha ganado en un board especifico.
     /// </summary>
+    /// <param name="row">Simple board row</param>
+    /// <param name="col">Simple board column</param>
     /// <returns>
     /// Devuelve el id del juegador que ha ganado. El valor es 0 si el resultado es empate. 
     /// El valor es -1 si todavía no ha acabado la partida.
     /// </returns>
-    public int WhoWinInSimpleBoard(int x, int y)
+    public int WhoWinInSimpleBoard(int row, int col)
     {
-        return _board[y, x].WhoWin();
+        return _board[row, col].WhoWin();
     }
 
-    public SimpleLogicBoard GetLogicBoard(int x, int y) { return _board[y, x]; }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="row">Simple board row</param>
+    /// <param name="col">Simple board column</param>
+    /// <returns></returns>
+    public SimpleLogicBoard GetLogicBoard(int row, int col) { return _board[row, col]; }
 }

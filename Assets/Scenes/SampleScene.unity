@@ -237,6 +237,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _simpleGame: 1
+  _hardDifficult: 1
   simpleBoardPrefab: {fileID: 2164424574606747515, guid: a8eb2c4e5463fee4bbd443ef50156326, type: 3}
 --- !u!4 &1681753012
 Transform:

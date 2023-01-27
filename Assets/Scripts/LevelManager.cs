@@ -7,6 +7,7 @@ public class LevelManager : MonoBehaviour
 
 
     public bool _simpleGame;
+    public bool _hardDifficult;
 
     private AIPlayer_SimpleBoard AIPlayer;
 
@@ -22,8 +23,8 @@ public class LevelManager : MonoBehaviour
 
     #region Dimensional game logic board
     private DimensionalLogicBoard _dimLogicBoard;
-    private int _currentXBoard = -1;
-    private int _currentYBoard = -1;
+    private int _cbCol = -1;
+    private int _cbRow = -1;
     #endregion
 
 
@@ -127,7 +128,7 @@ public class LevelManager : MonoBehaviour
         player1Id = 1;
         player2Id = 2;
 
-        AIPlayer = new AIPlayer_SimpleBoard(this, player2Id);
+        AIPlayer = new AIPlayer_SimpleBoard(this, player2Id, player1Id, _hardDifficult);
     }
 
 
@@ -156,13 +157,13 @@ public class LevelManager : MonoBehaviour
                 if (sb)
                 {
                     if (!_simpleGame)
-                        for (int j = 0; j < LevelManager.DIM(); j++)
+                        for (int row = 0; row < LevelManager.DIM(); row++)
                         {
-                            for (int k = 0; k < LevelManager.DIM(); k++)
+                            for (int col = 0; col < LevelManager.DIM(); col++)
                             {
-                                if (_renderBoard[j, k].Equals(sb))
+                                if (_renderBoard[row, col].Equals(sb))
                                 {
-                                    boardCoords = new Vector2(k, j);
+                                    boardCoords = new Vector2(col, row);
                                 }
                             }
                         }
@@ -189,10 +190,10 @@ public class LevelManager : MonoBehaviour
 
         if (boardCoords.x != -1 && boardCoords.y != -1 && cellCoords.x != -1 && cellCoords.y != -1)
         {
-            int xc = (int)cellCoords.x, yc = (int)cellCoords.y;
-            int xb = (int)boardCoords.x, yb = (int)boardCoords.y;
+            int cC = (int)cellCoords.x, rC = (int)cellCoords.y;
+            int cB = (int)boardCoords.x, rB = (int)boardCoords.y;
 
-            if (PlayerTurn(xc, yc, xb, yb, _turn))
+            if (PlayerTurn(rC, cC, rB, cB, _turn))
             {
                 _turnCount = ++_turnCount % 2;
                 _turn = _turnCount + 1;
@@ -204,60 +205,64 @@ public class LevelManager : MonoBehaviour
 
     /// <summary>
     /// Este método coloca una ficha del jugador en la casilla con las coordenadas pasadas por parámetro.
-    /// No pasamos las coordenadas del tablero porque solo podemos colocar casillas en el tablero actual.
     /// </summary>
-    /// <param name="xCell">Coordenada x de la casilla</param>
-    /// <param name="yCell">Coordenada y de la casilla</param>
+    /// <param name="cRow">Fila de la casilla</param>
+    /// <param name="cCol">Columna de la casilla</param>
+    /// <param name="bRow">Fila del tablero</param>
+    /// <param name="bCol">Columna del tablero</param>
     /// <param name="player">0=player1 | 1=player2</param>
-    private bool PlayerTurn(int xCell, int yCell, int xBoard, int yBoard, int player)
+    /// <returns>
+    /// Devuelve TRUE si ha conseguido poner la ficha, FALSE en caso contrario
+    /// </returns>
+    private bool PlayerTurn(int cRow, int cCol, int bRow, int bCol, int player)
     {
         // si las coordenadas del tablero (xBoard, yBoard) son distintas del tablero
         // donde hay que poner ficha (currentXBoard, currentYBoard), exceptuando si es
         // el primer movimiento (currentXBoard, currentYBoard) = (-1, -1); y 
         // si las coordenadas de la casilla se salen de la dimension del tablero hacemos return
-        if ((_currentXBoard != xBoard || _currentYBoard != yBoard) &&
-            (_currentXBoard != -1 || _currentYBoard != -1) ||
-            xCell < 0 || xCell > DIM() || yCell < 0 || yCell > DIM())
+        if ((_cbCol != bCol || _cbRow != bRow) &&
+            (_cbCol != -1 || _cbRow != -1) ||
+            cCol < 0 || cCol > DIM() || cRow < 0 || cRow > DIM())
             return false;
 
 
         // si podemos colocar la ficha 
-        if (!_simpleGame && _dimLogicBoard.TryFillCellByOnePlayer(yBoard, xBoard, yCell, xCell, player))
+        if (!_simpleGame && _dimLogicBoard.TryFillCellByOnePlayer(bRow, bCol, cRow, cCol, player))
         {
             // la colocamos en la celda correspondiente
-            _renderBoard[yBoard, xBoard].ChangeCellToPlayer(yCell, xCell, player);
+            _renderBoard[bRow, bCol].ChangeCellToPlayer(cRow, cCol, player);
 
 
             // Cambiamos el color a azul del tablero actual si se ha ganado o empate.
             // A blanco si se puede seguir poniendo fichas
-            int whoWin = _dimLogicBoard.WhoWinInSimpleBoard(xBoard, yBoard);
+            int whoWin = _dimLogicBoard.WhoWinInSimpleBoard(bCol, bRow);
             if (whoWin >= 0)
             {
-                if (whoWin == 1) _renderBoard[yBoard, xBoard].ChangeColor(Color.blue);
-                else if (whoWin == 2) _renderBoard[yBoard, xBoard].ChangeColor(Color.red);
-                else _renderBoard[yBoard, xBoard].ChangeColor(new Color(1, 0.72f, 0.31f, 1));
+                if (whoWin == 1) _renderBoard[bRow, bCol].ChangeColor(Color.blue);
+                else if (whoWin == 2) _renderBoard[bRow, bCol].ChangeColor(Color.red);
+                else _renderBoard[bRow, bCol].ChangeColor(new Color(1, 0.72f, 0.31f, 1));
             }
             else
-                _renderBoard[yBoard, xBoard].ChangeColor(Color.white);
+                _renderBoard[bRow, bCol].ChangeColor(Color.white);
 
-            if (_dimLogicBoard.WhoWinInSimpleBoard(xCell, yCell) >= 0)
+            if (_dimLogicBoard.WhoWinInSimpleBoard(cCol, cRow) >= 0)
             {
-                _currentXBoard = -1;
-                _currentYBoard = -1;
+                _cbCol = -1;
+                _cbRow = -1;
             }
             else
             {
-                _renderBoard[yCell, xCell].ChangeColor(Color.green);
+                _renderBoard[cRow, cCol].ChangeColor(Color.green);
 
-                _currentXBoard = xCell;
-                _currentYBoard = yCell;
+                _cbCol = cCol;
+                _cbRow = cRow;
             }
             return true;
         }
-        else if (_simpleGame && _logicBoardSimpleGame.WhoWin() == -1 && _logicBoardSimpleGame.TryFillCellByOnePlayer(yCell, xCell, player))
+        else if (_simpleGame && _logicBoardSimpleGame.WhoWin() == -1 && _logicBoardSimpleGame.TryFillCellByOnePlayer(cRow, cCol, player))
         {
             // la colocamos en la celda correspondiente
-            _renderBoardSimpleGame.ChangeCellToPlayer(yCell, xCell, player);
+            _renderBoardSimpleGame.ChangeCellToPlayer(cRow, cCol, player);
 
             if (_logicBoardSimpleGame.WhoWin() == 1) _renderBoardSimpleGame.ChangeColor(Color.blue);
             else if (_logicBoardSimpleGame.WhoWin() == 2) _renderBoardSimpleGame.ChangeColor(Color.red);
@@ -285,26 +290,26 @@ public class LevelManager : MonoBehaviour
 
         if (_simpleGame)
             return _logicBoardSimpleGame;
-        else if (_currentXBoard > -1 && _currentYBoard > -1)
+        else if (_cbCol > -1 && _cbRow > -1)
         {
-            board.x = _currentXBoard;
-            board.y = _currentYBoard;
-            return _dimLogicBoard.GetLogicBoard(_currentXBoard, _currentYBoard);
+            board.x = _cbCol;
+            board.y = _cbRow;
+            return _dimLogicBoard.GetLogicBoard(_cbRow, _cbCol);
         }
 
         if (_dimLogicBoard.WhoWin() == -1)
         {
-            int x, y;
+            int col, row;
             do
             {
-                x = Random.Range(0, DIM());
-                y = Random.Range(0, DIM());
-            } while (_dimLogicBoard.GetLogicBoard(x, y).WhoWin() != -1);
+                col = Random.Range(0, DIM());
+                row = Random.Range(0, DIM());
+            } while (_dimLogicBoard.GetLogicBoard(row, col).WhoWin() != -1);
 
-            board.x = x;
-            board.y = y;
+            board.x = col;
+            board.y = row;
 
-            return _dimLogicBoard.GetLogicBoard(x, y);
+            return _dimLogicBoard.GetLogicBoard(row, col);
         }
 
         return null;
@@ -313,6 +318,8 @@ public class LevelManager : MonoBehaviour
 
     public int WhoWin()
     {
+        if (_simpleGame)
+            return _logicBoardSimpleGame.WhoWin();
         return _dimLogicBoard.WhoWin();
     }
 }
