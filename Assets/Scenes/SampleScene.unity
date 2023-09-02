@@ -236,7 +236,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be4c37e88848b054a82724d4db035819, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _simpleGame: 1
+  _simpleGame: 0
   _hardDifficult: 1
   simpleBoardPrefab: {fileID: 2164424574606747515, guid: a8eb2c4e5463fee4bbd443ef50156326, type: 3}
 --- !u!4 &1681753012

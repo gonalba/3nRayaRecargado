@@ -28,7 +28,7 @@ public class AIPlayer_DimBoard
                     if (board[rows[i], cols[i] + j] == player)
                         lineScore++;
                     else if (board[rows[i], cols[i] + j] == opponent)
-                    lineScore--;
+                        lineScore--;
                 }
                 score += weights[i] * lineScore;
             }

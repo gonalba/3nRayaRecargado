@@ -120,9 +120,9 @@ public class LevelManager : MonoBehaviour
             _renderBoardSimpleGame.transform.SetParent(transform);
         }
 
-        _turnCount = Random.Range(0, 2);
+        _turnCount = 1;// Random.Range(0, 2);
         _turn = _turnCount + 1;
-
+        
         Debug.Log("Turno: " + _turn);
 
         player1Id = 1;
@@ -143,6 +143,7 @@ public class LevelManager : MonoBehaviour
         Vector2 cellCoords = new Vector2(-1, -1);
         Vector2 boardCoords = new Vector2(-1, -1);
 
+        // turno del humano o de la maquina
         if (_turn == player1Id && Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -157,9 +158,9 @@ public class LevelManager : MonoBehaviour
                 if (sb)
                 {
                     if (!_simpleGame)
-                        for (int row = 0; row < LevelManager.DIM(); row++)
+                        for (int row = 0; row < DIM(); row++)
                         {
-                            for (int col = 0; col < LevelManager.DIM(); col++)
+                            for (int col = 0; col < DIM(); col++)
                             {
                                 if (_renderBoard[row, col].Equals(sb))
                                 {
@@ -226,7 +227,7 @@ public class LevelManager : MonoBehaviour
             return false;
 
 
-        // si podemos colocar la ficha 
+        // (tablero dimensional) si podemos colocar la ficha 
         if (!_simpleGame && _dimLogicBoard.TryFillCellByOnePlayer(bRow, bCol, cRow, cCol, player))
         {
             // la colocamos en la celda correspondiente
@@ -279,17 +280,20 @@ public class LevelManager : MonoBehaviour
     /// Método que selecciona el tablero logico. Si estamos jugando al dimensional, selecciona el tablero que toque. 
     /// Si hay que elegir, elige uno al azar
     /// </summary>
+    /// <param name="board">Parametros de salida que contiene las coordenadas correspondientes al tablero</param>
     /// <returns>
     /// Devuelve el tablero logico si es una partida de tres en raya normal. 
     /// Si es dimensional entonces devuelve el tablero simple actual y si no hay ninguno marcado, devuelve uno aleatorio
     /// </returns>
-    public SimpleLogicBoard SelectLogicBoard(out Vector2 board)
+    public SimpleLogicBoard GetLogicBoard(out Vector2 board)
     {
         board.x = 0;
         board.y = 0;
 
+        // si estamos en el tablero simple, lo devolvemos
         if (_simpleGame)
             return _logicBoardSimpleGame;
+        // si estamos en tablero dimensional, devolvemos el tablero activo actualmente
         else if (_cbCol > -1 && _cbRow > -1)
         {
             board.x = _cbCol;
@@ -297,19 +301,23 @@ public class LevelManager : MonoBehaviour
             return _dimLogicBoard.GetLogicBoard(_cbRow, _cbCol);
         }
 
+        // si no hay ningun tablero activo lo elegimos al azar
         if (_dimLogicBoard.WhoWin() == -1)
         {
             int col, row;
-            do
-            {
-                col = Random.Range(0, DIM());
-                row = Random.Range(0, DIM());
-            } while (_dimLogicBoard.GetLogicBoard(row, col).WhoWin() != -1);
+            int aux1 = Random.Range(0, DIM());
+            int aux2 = Random.Range(0, DIM());
 
-            board.x = col;
-            board.y = row;
-
-            return _dimLogicBoard.GetLogicBoard(row, col);
+            for (row = (aux1 + 1) % DIM(); row != aux1; row = (row + 1) % DIM())
+                for (col = (aux2 + 1) % DIM(); col != aux2; col = (col + 1) % DIM())
+                {
+                    if (_dimLogicBoard.GetLogicBoard(row, col).WhoWin() == -1)
+                    {
+                        board.x = col;
+                        board.y = row;
+                        return _dimLogicBoard.GetLogicBoard(row, col);
+                    }
+                }
         }
 
         return null;

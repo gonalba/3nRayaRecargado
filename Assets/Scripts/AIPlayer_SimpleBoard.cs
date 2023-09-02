@@ -43,7 +43,7 @@ public class AIPlayer_SimpleBoard
     public Vector2 SelectSimpleBoard()
     {
         Vector2 boardCoords = new Vector2();
-        _currentLogicBoard = _boardManager.SelectLogicBoard(out boardCoords);
+        _currentLogicBoard = _boardManager.GetLogicBoard(out boardCoords);
 
         return boardCoords;
     }
