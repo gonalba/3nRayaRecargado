@@ -6,8 +6,7 @@ using UnityEngine;
 ///  - Algoritmo IA facil sacado de https://github.com/parzibyte/tic-tac-toe-c
 ///  - Algoritmo IA dificil basado en un algoritmo generado por chatGPT
 /// </summary>
-public class AIPlayer_SimpleBoard
-{
+public class AIPlayer_SimpleBoard {
     #region Hard difficult AI arrays
     private int[] weights = new int[9] { 3, 2, 3, 2, 4, 2, 3, 2, 3 };
     private int[] rows = new int[9] { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
@@ -24,8 +23,7 @@ public class AIPlayer_SimpleBoard
 
     private SimpleLogicBoard _currentLogicBoard;
 
-    public AIPlayer_SimpleBoard(LevelManager bm, int playerId, int opponentId, bool hardDifficult)
-    {
+    public AIPlayer_SimpleBoard(LevelManager bm, int playerId, int opponentId, bool hardDifficult) {
         _boardManager = bm;
         _playerId = playerId;
         _opponentId = opponentId;
@@ -40,11 +38,9 @@ public class AIPlayer_SimpleBoard
     /// <returns>
     /// Devuelve un VECTOR2 que contiene las coordenadas [X(columnas),Y(filas)] del tablero logico seleccionado.
     /// </returns>
-    public Vector2 SelectSimpleBoard()
-    {
+    public Vector2 SelectSimpleBoard() {
         Vector2 boardCoords = new Vector2();
         _currentLogicBoard = _boardManager.GetLogicBoard(out boardCoords);
-
         return boardCoords;
     }
 
@@ -55,8 +51,7 @@ public class AIPlayer_SimpleBoard
     /// <returns>
     /// Devuelve la posicion de la casilla a marcar
     /// </returns>
-    public Vector2 SelectCoords()
-    {
+    public Vector2 SelectCoords() {
         //La forma en la que la IA tiene que calcular la mejor coordenada es:
         //1.Ganar si se puede
         if (WinIfCan(_playerId)) return _nextPosition;
@@ -84,23 +79,13 @@ public class AIPlayer_SimpleBoard
     /// <returns>
     /// Devuelve TRUE si puede ganar, FALSE en caso contrario
     /// </returns>
-    private bool WinIfCan(int player)
-    {
+    private bool WinIfCan(int player) {
         for (int c = 0; c < LevelManager.DIM(); c++)
-        {
             for (int r = 0; r < LevelManager.DIM(); r++)
-            {
-                if (IsEmptyCoords(r, c))
-                {
-                    if (CanWinInCell(player, r, c))
-                    {
-                        _nextPosition = new Vector2(c, r);
-                        return true;
-                    }
+                if (IsEmptyCoords(r, c) && CanWinInCell(player, r, c)) {
+                    _nextPosition = new Vector2(c, r);
+                    return true;
                 }
-            }
-        }
-
         return false;
     }
 
@@ -113,10 +98,7 @@ public class AIPlayer_SimpleBoard
     /// <returns>
     /// Devuelve TRUE si la casilla esta vacia, FALSE en caso contrario.
     /// </returns>
-    public bool IsEmptyCoords(int r, int c)
-    {
-        return _currentLogicBoard.GetValueofCell(r, c) == 0;
-    }
+    public bool IsEmptyCoords(int r, int c) { return _currentLogicBoard.GetValueofCell(r, c) == 0; }
 
 
     /// <summary>
@@ -128,8 +110,7 @@ public class AIPlayer_SimpleBoard
     /// <returns>
     /// Devuelve TRUE si gana al colocar la ficha en las coordenadas pasadas por parámetro, FALSE en caso contrario
     /// </returns>
-    private bool CanWinInCell(int player, int r, int c)
-    {
+    private bool CanWinInCell(int player, int r, int c) {
         int value = player;
 
         int valueR1 = _currentLogicBoard.GetValueofCell((r + 1) % LevelManager.DIM(), c);
@@ -139,17 +120,12 @@ public class AIPlayer_SimpleBoard
         int valueC2 = _currentLogicBoard.GetValueofCell(r, (c + 2) % LevelManager.DIM());
 
         // Si en la fila todas las casillas son iguales y no vacías
-        if ((value == valueR1) && (value == valueR2) && (value != 0))
-        {
+        if ((value == valueR1) && (value == valueR2) && (value != 0)) 
             return true;
-        }
 
         // Lo mismo para las columnas
         if ((value == valueC1) && (value == valueC2) && (value != 0))
-        {
             return true;
-        }
-
 
         int valueD1 = _currentLogicBoard.GetValueofCell((r + 1) % LevelManager.DIM(), (c + 1) % LevelManager.DIM());
         int valueD2 = _currentLogicBoard.GetValueofCell((r + 2) % LevelManager.DIM(), (c + 2) % LevelManager.DIM());
@@ -158,35 +134,27 @@ public class AIPlayer_SimpleBoard
 
         // Diagonal 0,0|1,1|2,2
         if (Math.Abs(r - c) == 0 && (value == valueD1) && (value == valueD2) && (value != 0))
-        {
             return true;
-        }
 
         // Diagonal 2,0|1,1|0,2
 
         // Calculamos las coordenadas de la diagonal
         int r1Inv = (r + 1) % LevelManager.DIM();
         int c1Inv = c - 1;
-        if (c1Inv == -1)
-            c1Inv = LevelManager.DIM() - 1;
+        if (c1Inv == -1) c1Inv = LevelManager.DIM() - 1;
 
         int r2Inv = (r + 2) % LevelManager.DIM();
         int c2Inv = c - 2;
-        if (c2Inv == -1)
-            c2Inv = LevelManager.DIM() - 1;
-        else if (c2Inv == -2)
-            c2Inv = LevelManager.DIM() - 2;
+        if (c2Inv == -1) c2Inv = LevelManager.DIM() - 1;
+        else if (c2Inv == -2) c2Inv = LevelManager.DIM() - 2;
 
         // accedemos al valor de las coordenadas calculadas
         int valueD1Inv = _currentLogicBoard.GetValueofCell(r1Inv, c1Inv);
         int valueD2Inv = _currentLogicBoard.GetValueofCell(r2Inv, c2Inv);
 
         // comprobamos si todos los valores coinciden
-        if ((Math.Abs(r - c) == 2 || (r == 1 && c == 1))
-            && (value == valueD1Inv) && (value == valueD2Inv) && (value != 0))
-        {
+        if ((Math.Abs(r - c) == 2 || (r == 1 && c == 1)) && (value == valueD1Inv) && (value == valueD2Inv) && (value != 0))
             return true;
-        }
 
         return false;
     }
@@ -202,17 +170,14 @@ public class AIPlayer_SimpleBoard
     /// <returns>
     /// Si el movimiento tiene una puntuacion inferior a 2 entonces devuelve FALSE. Devuelve TRUE en caso contrario.
     /// </returns>
-    private bool BestMovement()
-    {
+    private bool BestMovement() {
         int playerBestScore = BestMovementTo(_playerId, _opponentId);
         Vector2 playerBestPos = _nextPosition;
         int opponentBestScore = BestMovementTo(_opponentId, _playerId);
 
-        if (playerBestScore > opponentBestScore)
-            _nextPosition = playerBestPos;
+        if (playerBestScore > opponentBestScore) _nextPosition = playerBestPos;
 
-        if (opponentBestScore < 2)
-            return false;
+        if (opponentBestScore < 2) return false;
 
         return true;
     }
@@ -227,32 +192,23 @@ public class AIPlayer_SimpleBoard
     /// <returns>
     /// Devuelve un INT que representa la puntuacion del mejor movimiento
     /// </returns>
-    private int BestMovementTo(int player, int opponent)
-    {
+    private int BestMovementTo(int player, int opponent) {
         int conteoMayor = 0, cConteoMayor = -1, rConteoMayor = -1;
 
-        for (int r = 0; r < LevelManager.DIM(); r++)
-        {
-            for (int c = 0; c < LevelManager.DIM(); c++)
-            {
-                if (IsEmptyCoords(r, c))
-                {
+        for (int r = 0; r < LevelManager.DIM(); r++) 
+            for (int c = 0; c < LevelManager.DIM(); c++) 
+                if (IsEmptyCoords(r, c)) {
                     // Colocamos y contamos el puntaje
                     int conteoTemporal;
-                    if (_hardDifficult)
-                        conteoTemporal = ScoreWithNewCoordsHardMode(player, opponent, r, c);
-                    else
-                        conteoTemporal = ScoreWithNewCoordsEasyMode(player, opponent, r, c);
+                    if (_hardDifficult) conteoTemporal = ScoreWithNewCoordsHardMode(player, opponent, r, c);
+                    else conteoTemporal = ScoreWithNewCoordsEasyMode(player, opponent, r, c);
 
-                    if (conteoTemporal > conteoMayor)
-                    {
+                    if (conteoTemporal > conteoMayor) {
                         conteoMayor = conteoTemporal;
                         rConteoMayor = r;
                         cConteoMayor = c;
                     }
                 }
-            }
-        }
 
         _nextPosition.x = cConteoMayor;
         _nextPosition.y = rConteoMayor;
@@ -272,41 +228,33 @@ public class AIPlayer_SimpleBoard
     /// <returns>
     /// Devuelve un INT que representa la puntuacion del tablero suponiendo que en la posicion (newX,newY) hay una ficha del jugador con id player 
     /// </returns>
-    int ScoreWithNewCoordsHardMode(int player, int opponent, int newR, int newC)
-    {
+    int ScoreWithNewCoordsHardMode(int player, int opponent, int newR, int newC) {
         int score = 0;
-        for (int i = 0; i < 9; i++)
-        {
+        for (int i = 0; i < 9; i++) {
             #region puntuacion en las filas
             int lineScoreR = 0;
-            for (int j = 0; j < 3; j++)
-            {
+            for (int j = 0; j < 3; j++) {
                 int r = rows[i];
                 int c = (cols[i] + j) % 3;
 
                 if (_currentLogicBoard.GetValueofCell(r, c) == player || (r == newR && c == newC))
                     lineScoreR++;
-                else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
-                {
+                else if (_currentLogicBoard.GetValueofCell(r, c) == opponent) 
                     lineScoreR--;
-                }
             }
             score += weights[i] * lineScoreR;
             #endregion
 
             #region puntuacion en las columnas
             int lineScoreC = 0;
-            for (int j = 0; j < 3; j++)
-            {
+            for (int j = 0; j < 3; j++) {
                 int r = (rows[i] + j) % 3;
                 int c = cols[i];
 
                 if (_currentLogicBoard.GetValueofCell(r, c) == player || (r == newR && c == newC))
                     lineScoreC++;
-                else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
-                {
+                else if (_currentLogicBoard.GetValueofCell(r, c) == opponent) 
                     lineScoreC--;
-                }
             }
             score += weights[i] * lineScoreC;
             #endregion
@@ -315,40 +263,33 @@ public class AIPlayer_SimpleBoard
             int diag = Mathf.Abs(rows[i] - cols[i]);
 
             #region diagonal normal (00|11|22)
-            if (diag == 0)
-            {
+            if (diag == 0) {
                 int diagScoreN = 0;
-                for (int j = 0; j < 3; j++)
-                {
+                for (int j = 0; j < 3; j++) {
                     int r = (rows[i] + j) % 3;
                     int c = (cols[i] + j) % 3;
 
                     if (_currentLogicBoard.GetValueofCell(r, c) == player || (r == newR && c == newC))
                         diagScoreN++;
-                    else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
-                    {
+                    else if (_currentLogicBoard.GetValueofCell(r, c) == opponent) 
                         diagScoreN--;
-                    }
                 }
                 score += weights[i] * diagScoreN;
             }
             #endregion
 
             #region diagonal inversa (20|11|02)
-            if (diag == 2)
-            {
+            if (diag == 2) {
                 int diagScoreI = 0;
-                for (int j = 0; j < 3; j++)
-                {
+                for (int j = 0; j < 3; j++) {
                     int r = (rows[i] + j) % 3;
                     int c = (cols[i] - j) > -1 ? cols[i] - j : cols[i] - j + 3;
 
                     if (_currentLogicBoard.GetValueofCell(r, c) == player || (r == newR && c == newC))
                         diagScoreI++;
                     else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
-                    {
                         diagScoreI--;
-                    }
+
                 }
                 score += weights[i] * diagScoreI;
             }
@@ -371,37 +312,23 @@ public class AIPlayer_SimpleBoard
     /// <returns>
     /// Devuelve un INT que representa la puntuacion del tablero suponiendo que en la posicion (newX,newY) hay una ficha del jugador con id player
     /// </returns>
-    private int ScoreWithNewCoordsEasyMode(int player, int opponent, int newR, int newC)
-    {
+    private int ScoreWithNewCoordsEasyMode(int player, int opponent, int newR, int newC) {
         int conteoMayor = 0;
-        for (int r = 0; r < LevelManager.DIM(); r++)
-        {
-            for (int c = 0; c < LevelManager.DIM(); c++)
-            {
+        for (int r = 0; r < LevelManager.DIM(); r++) {
+            for (int c = 0; c < LevelManager.DIM(); c++) {
                 // Colocamos y contamos el puntaje
                 int conteoTemporal;
                 conteoTemporal = CountUp(player, opponent, r, c, newR, newC);
-                if (conteoTemporal > conteoMayor)
-                {
-                    conteoMayor = conteoTemporal;
-                }
+                if (conteoTemporal > conteoMayor) conteoMayor = conteoTemporal;
+
                 conteoTemporal = CountUpRight(player, opponent, r, c, newR, newC);
-                if (conteoTemporal > conteoMayor)
-                {
-                    conteoMayor = conteoTemporal;
-                }
+                if (conteoTemporal > conteoMayor) conteoMayor = conteoTemporal;
 
                 conteoTemporal = CountRight(player, opponent, r, c, newR, newC);
-                if (conteoTemporal > conteoMayor)
-                {
-                    conteoMayor = conteoTemporal;
-                }
+                if (conteoTemporal > conteoMayor) conteoMayor = conteoTemporal;
 
                 conteoTemporal = CountBottomRight(player, opponent, r, c, newR, newC);
-                if (conteoTemporal > conteoMayor)
-                {
-                    conteoMayor = conteoTemporal;
-                }
+                if (conteoTemporal > conteoMayor) conteoMayor = conteoTemporal;
             }
         }
         return conteoMayor;
@@ -420,21 +347,15 @@ public class AIPlayer_SimpleBoard
     /// <returns>
     /// Devuelve un INT que corresponde al numero de fichas seguidas del jugador playerId hacia arriba empezando por la posicion (x,y)
     /// </returns>
-    private int CountUp(int player, int opponent, int r, int c, int newR, int newC)
-    {
+    private int CountUp(int player, int opponent, int r, int c, int newR, int newC) {
         int cInicio = (c - CONTEO_PARA_GANAR >= 0) ? c - CONTEO_PARA_GANAR + 1 : 0;
         int contador = 0;
 
-        for (; cInicio <= c; cInicio++)
-        {
+        for (; cInicio <= c; cInicio++) {
             if (_currentLogicBoard.GetValueofCell(r, cInicio) == player || (r == newR && cInicio == newC))
-            {
                 contador++;
-            }
             else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
-            {
                 contador = 0;
-            }
         }
         return contador;
     }
@@ -452,21 +373,15 @@ public class AIPlayer_SimpleBoard
     /// <returns>
     /// Devuelve un INT que corresponde al numero de fichas seguidas del jugador playerId hacia la derecha empezando por la posicion (x,y)
     /// </returns>
-    private int CountRight(int player, int opponent, int r, int c, int newR, int newC)
-    {
+    private int CountRight(int player, int opponent, int r, int c, int newR, int newC) {
         int xFin = (r + CONTEO_PARA_GANAR < LevelManager.DIM()) ? r + CONTEO_PARA_GANAR - 1 : LevelManager.DIM() - 1;
         int contador = 0;
 
-        for (; r <= xFin; r++)
-        {
+        for (; r <= xFin; r++) {
             if (_currentLogicBoard.GetValueofCell(r, c) == player || (r == newR && c == newC))
-            {
                 contador++;
-            }
             else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
-            {
                 contador = 0;
-            }
         }
         return contador;
     }
@@ -490,16 +405,11 @@ public class AIPlayer_SimpleBoard
         int cInicio = (c - CONTEO_PARA_GANAR >= 0) ? c - CONTEO_PARA_GANAR + 1 : 0;
         int contador = 0;
 
-        while (r <= rFin && cInicio <= c)
-        {
+        while (r <= rFin && cInicio <= c) {
             if (_currentLogicBoard.GetValueofCell(r, c) == player || (r == newR && c == newC))
-            {
                 contador++;
-            }
             else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
-            {
                 contador = 0;
-            }
             r++;
             c--;
         }
@@ -519,22 +429,16 @@ public class AIPlayer_SimpleBoard
     /// <returns>
     /// Devuelve un INT que corresponde al numero de fichas seguidas del jugador playerId hacia abajo a la derecha empezando por la posicion (x,y)
     /// </returns>
-    private int CountBottomRight(int player, int opponent, int r, int c, int newR, int newC)
-    {
+    private int CountBottomRight(int player, int opponent, int r, int c, int newR, int newC) {
         int rFin = (r + CONTEO_PARA_GANAR < LevelManager.DIM()) ? r + CONTEO_PARA_GANAR - 1 : LevelManager.DIM() - 1;
         int cFin = (c + CONTEO_PARA_GANAR < LevelManager.DIM()) ? c + CONTEO_PARA_GANAR - 1 : LevelManager.DIM() - 1;
         int contador = 0;
 
-        while (r <= rFin && c <= cFin)
-        {
+        while (r <= rFin && c <= cFin) {
             if (_currentLogicBoard.GetValueofCell(r, c) == player || (r == newR && c == newC))
-            {
                 contador++;
-            }
-            else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
-            {
+            else if (_currentLogicBoard.GetValueofCell(r, c) == opponent) 
                 contador = 0;
-            }
             r++;
             c++;
         }
@@ -549,10 +453,8 @@ public class AIPlayer_SimpleBoard
     /// <returns>
     /// Devuelve TRUE si la posicion (0,0) esta libre. FALSE en caso contrario
     /// </returns>
-    private bool UpperLeftCorner()
-    {
-        if (_currentLogicBoard.GetValueofCell(0, 0) == 0)
-        {
+    private bool UpperLeftCorner() {
+        if (_currentLogicBoard.GetValueofCell(0, 0) == 0) {
             _nextPosition.x = 0;
             _nextPosition.y = 0;
             return true;
@@ -564,20 +466,16 @@ public class AIPlayer_SimpleBoard
     /// <summary>
     /// Metodo que asigna una casilla vacia aleatoria al atributo de clase _nextPosition
     /// </summary>
-    private void RandomCell()
-    {
+    private void RandomCell() {
         int aux = UnityEngine.Random.Range(0, LevelManager.DIM() - 1);
 
         for (int row = (aux + 1) % LevelManager.DIM(); row != aux; row = (row + 1) % LevelManager.DIM())
             for (int col = (aux + 1) % LevelManager.DIM(); col != aux; col = (col + 1) % LevelManager.DIM())
-            {
-                if (_currentLogicBoard.WhoWin() == -1 && IsEmptyCoords(row, col))
-                {
+                if (_currentLogicBoard.WhoWin() == -1 && IsEmptyCoords(row, col)) {
                     _nextPosition.y = row;
                     _nextPosition.x = col;
                     break;
                 }
-            }
     }
 
 }

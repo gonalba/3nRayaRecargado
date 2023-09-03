@@ -6,8 +6,7 @@ using UnityEngine;
 /// SimpleBoard es la clase engargada de guardar el estado un tablero 3x3. 
 /// Puedes rellenar una casilla por un juador y consultar quien ha ganado.
 /// </summary>
-public class SimpleLogicBoard
-{
+public class SimpleLogicBoard {
     /// <summary>
     /// Id del jugador ganador. Es -1 si no ha ganado nadie y 0 si el resultado es empate.
     /// </summary>
@@ -19,18 +18,12 @@ public class SimpleLogicBoard
     private int[,] _board = new int[LevelManager.DIM(), LevelManager.DIM()];
 
 
-
-
-    public SimpleLogicBoard()
-    {
+    public SimpleLogicBoard() {
         // Inicializamos el array board 
         for (int r = 0; r < LevelManager.DIM(); r++)
             for (int c = 0; c < LevelManager.DIM(); c++)
                 _board[r, c] = 0;
     }
-
-
-
 
 
     /// <summary>
@@ -40,47 +33,29 @@ public class SimpleLogicBoard
     /// <returns> 
     /// Devuelve el id del jugados que ha ganado. Si hay empate devuelve 0 y si todavia se puede seguir jugando devuelve -1
     /// </returns>
-    private int checkWinner()
-    {
+    private int checkWinner() {
         // Si en alguna fila todas las casillas son iguales y no vacías
         for (int row = 0; row < LevelManager.DIM(); row++)
-            if ((_board[row, 0] == _board[row, 1])
-                    && (_board[row, 0] == _board[row, 2])
-                    && (_board[row, 0] != 0))
-            {
+            if ((_board[row, 0] == _board[row, 1]) && (_board[row, 0] == _board[row, 2]) && (_board[row, 0] != 0))
                 return _board[row, 0];
-            }
 
         // Lo mismo para las columnas
         for (int col = 0; col < LevelManager.DIM(); col++)
-            if ((_board[0, col] == _board[1, col])
-                    && (_board[0, col] == _board[2, col])
-                    && (_board[0, col] != 0))
-            {
+            if ((_board[0, col] == _board[1, col]) && (_board[0, col] == _board[2, col]) && (_board[0, col] != 0)) {
                 return _board[0, col];
             }
 
         // Y finalmente miro las dos diagonales
-        if ((_board[0, 0] == _board[1, 1])
-                && (_board[0, 0] == _board[2, 2])
-                && (_board[0, 0] != 0))
-        {
+        if ((_board[0, 0] == _board[1, 1]) && (_board[0, 0] == _board[2, 2]) && (_board[0, 0] != 0))
             return _board[0, 0];
-        }
-        else if ((_board[0, 2] == _board[1, 1])
-                && (_board[0, 2] == _board[2, 0])
-                && (_board[0, 2] != 0))
-        {
+        else if ((_board[0, 2] == _board[1, 1]) && (_board[0, 2] == _board[2, 0]) && (_board[0, 2] != 0))
             return _board[0, 2];
-        }
 
         // Miro si ha habido empate: si hay alguna casilla vacia, entonces no hay empate
         for (int row = 0; row < LevelManager.DIM(); row++)
             for (int col = 0; col < LevelManager.DIM(); col++)
-            {
                 if (_board[row, col] == 0)
                     return -1;
-            }
 
         return 0;
 
@@ -96,13 +71,10 @@ public class SimpleLogicBoard
     /// <returns>
     /// True if player fill the cell (row,col). False otherwise
     /// </returns>
-    public bool TryFillCellByOnePlayer(int row, int col, int pId)
-    {
-        if (_board[row, col] != 0)
-            return false;
+    public bool TryFillCellByOnePlayer(int row, int col, int pId) {
+        if (_board[row, col] != 0) return false;
 
         _board[row, col] = pId;
-
         _playerWin = checkWinner();
 
         return true;

@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //[ExecuteAlways]
-public class SimpleRenderBoard : MonoBehaviour
-{
+public class SimpleRenderBoard : MonoBehaviour {
     public RenderCell cellPrefab;
     public BoxCollider bCollider;
 
@@ -12,11 +11,9 @@ public class SimpleRenderBoard : MonoBehaviour
 
 
     // Start is called before the first frame update
-    void Start()
-    {
+    void Start() {
         for (int y = 0; y < LevelManager.DIM(); y++)
-            for (int x = 0; x < LevelManager.DIM(); x++)
-            {
+            for (int x = 0; x < LevelManager.DIM(); x++) {
                 renderBoard[y, x] = Instantiate(cellPrefab);
                 renderBoard[y, x].transform.SetParent(transform);
                 renderBoard[y, x].transform.localPosition = new Vector3(x, y, 0);
@@ -32,13 +29,11 @@ public class SimpleRenderBoard : MonoBehaviour
         bCollider.center = new Vector3(centerPosX, centerPosY);
     }
 
-    public void ChangeCellToPlayer(int y, int x, int idPlayer)
-    {
+    public void ChangeCellToPlayer(int y, int x, int idPlayer) {
         renderBoard[y, x].ChangeCellToPlayer(idPlayer);
     }
 
-    public void ChangeColor(Color c)
-    {
+    public void ChangeColor(Color c) {
         for (int y = 0; y < LevelManager.DIM(); y++)
             for (int x = 0; x < LevelManager.DIM(); x++)
                 renderBoard[y, x].ChangeColor(c);

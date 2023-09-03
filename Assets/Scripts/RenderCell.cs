@@ -3,18 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 //[ExecuteAlways]
-public class RenderCell : MonoBehaviour
-{
+public class RenderCell : MonoBehaviour {
     public SpriteRenderer empty = null;
     public SpriteRenderer x = null;
     public SpriteRenderer o = null;
 
     public BoxCollider bCollider;
 
-    private void Start()
-    {
-        if (empty == null || x == null || o == null)
-        {
+    private void Start() {
+        if (empty == null || x == null || o == null) {
             Debug.LogError("Cell no tiene asignados los gameobjects");
             return;
         }
@@ -26,16 +23,12 @@ public class RenderCell : MonoBehaviour
         bCollider.size = empty.size;
     }
 
-    public void ChangeCellToPlayer(int idPlayer)
-    {
-        if (idPlayer == 1)
-        {
+    public void ChangeCellToPlayer(int idPlayer) {
+        if (idPlayer == 1) {
             empty.gameObject.SetActive(false);
             x.gameObject.SetActive(true);
             o.gameObject.SetActive(false);
-        }
-        else if (idPlayer == 2)
-        {
+        } else if (idPlayer == 2) {
             empty.gameObject.SetActive(false);
             x.gameObject.SetActive(false);
             o.gameObject.SetActive(true);
@@ -43,8 +36,7 @@ public class RenderCell : MonoBehaviour
 
     }
 
-    public void ChangeColor(Color c)
-    {
+    public void ChangeColor(Color c) {
         empty.material.color = c;
         x.material.color = c;
         o.material.color = c;
@@ -56,11 +48,7 @@ public class RenderCell : MonoBehaviour
     /// son 0,9. Esto lo hacemos para crear el espacio entre casillas
     /// </summary>
     /// <returns></returns>
-    public float GetSizeCellY()
-    {
-        return 1;
-        //return empty.size.y;
-    }
+    public float GetSizeCellY() { return 1; } //return empty.size.y; }
 
     /// <summary>
     /// Devuelve la dimension (coordenada X) de la casilla. 
@@ -68,9 +56,5 @@ public class RenderCell : MonoBehaviour
     /// son 0,9. Esto lo hacemos para crear el espacio entre casillas
     /// </summary>
     /// <returns></returns>
-    public float GetSizeCellX()
-    {
-        return 1;
-        //return empty.size.y;
-    }
+    public float GetSizeCellX() { return 1; } //return empty.size.y; }
 }
