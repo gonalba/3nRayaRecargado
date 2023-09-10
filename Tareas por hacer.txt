@@ -1,0 +1,9 @@
+DESARROLLO
+- Animaciones de la cámara
+	- Perspectiva de la camara. Reescalar bien en modo perspectiva 
+	- Hacercarse a cada uno de los tableros simples
+	- Animación de inicio (smooth camera) 
+
+ARTE
+- Escribir tres skins diferentes (animaciones que hay, diferentes visuales, etc)
+- Investigar viabilidad de las skins (IAs?)

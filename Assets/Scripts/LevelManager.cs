@@ -1,3 +1,6 @@
+using Board.Graphics;
+using Board.Logic;
+using IA;
 using UnityEngine;
 
 public class LevelManager : MonoBehaviour
@@ -8,6 +11,8 @@ public class LevelManager : MonoBehaviour
 
     public bool _simpleGame;
     public bool _hardDifficult;
+
+    public Skin.SkinPackage skinPackage;
 
     private AIPlayer_SimpleBoard AIPlayer;
 
@@ -78,8 +83,35 @@ public class LevelManager : MonoBehaviour
 
         // Centramos la cámara
         float pos = (boardSize - 1) / 2;
-        Camera.main.transform.position = new Vector3(pos * _scaleFactor,
-            pos * _scaleFactor, Camera.main.transform.position.z);
+        Camera.main.transform.position = new Vector3(pos * _scaleFactor, pos * _scaleFactor, Camera.main.transform.position.z);
+        //Vector3 newPos = new Vector3(pos * _scaleFactor, pos * _scaleFactor, Camera.main.transform.position.z);
+
+        // Movemos la cámara
+        //Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, newPos, Time.deltaTime * smoothLevel);
+        //SmoothLookAt();
+    }
+
+    /// <summary>
+    /// Permite definir la cantidad de suavizado.
+    /// Cuanto más grande, más rápido va. Con 0 no se mueve...
+    /// </summary>
+    public float smoothLevel = 1.0f;
+
+    /// <summary>
+    /// Cambia la rotación (con el factor de suavizado) para que se mire
+    /// hacia el jugador.
+    /// </summary>
+    /// (Extraído de un tutorial de Unity.)
+    void SmoothLookAt()
+    {
+        // Create a vector from the camera towards the player.
+        Vector3 relPlayerPosition = Camera.main.transform.position - Camera.main.transform.position + 0.5f * Vector3.up;
+
+        // Create a rotation based on the relative position of the player being the forward vector.
+        Quaternion lookAtRotation = Quaternion.LookRotation(relPlayerPosition, Vector3.up);
+
+        // Lerp the camera's rotation between it's current rotation and the rotation that looks at the player.
+        Camera.main.transform.rotation = Quaternion.Lerp(Camera.main.transform.rotation, lookAtRotation, smoothLevel * Time.deltaTime);
     }
     #endregion
 
@@ -89,6 +121,8 @@ public class LevelManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("Asignamos el skin");
+        simpleBoardPrefab.skin = skinPackage;
 
         if (!_simpleGame)
         {
