@@ -1,12 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 
 namespace Board.Graphics
 {
     //[ExecuteAlways]
-    public class RenderCell : MonoBehaviour
+    public class VisualCell : MonoBehaviour
     {
         public SpriteRenderer empty = null;
         public SpriteRenderer x = null;
@@ -14,20 +15,25 @@ namespace Board.Graphics
 
         public BoxCollider bCollider;
 
+        [HideInInspector]
+        public SimpleVisualBoard board = null;
+        public int row = -1;
+        public int col = -1;
+
+        public ClickAction clickAction;
+
         private void Start()
         {
-            if (empty == null || x == null || o == null)
+            if (empty == null || x == null || o == null || board == null || row == -1 || col == -1)
             {
                 Debug.LogError("Cell no tiene asignados los gameobjects");
                 return;
             }
 
-            //empty.gameObject.SetActive(true);
-            //x.gameObject.SetActive(false);
-            //o.gameObject.SetActive(false);
-
             bCollider.size = empty.size;
         }
+
+        public Vector2Int GetCoodrs() { return new Vector2Int(col, row); }
 
         public void ChangeCellToPlayer(int idPlayer)
         {
@@ -86,6 +92,18 @@ namespace Board.Graphics
             empty.sprite = skin.empty;
             x.sprite = skin.x;
             o.sprite = skin.o;
+        }
+
+        public delegate void ClickAction(VisualCell cell);
+        public void AddClickListenerToCells(ClickAction action)
+        {
+            Debug.Log("Añadimos la accion");
+            clickAction += action;
+        }
+
+        private void OnMouseUpAsButton()
+        {
+            clickAction.Invoke(this);
         }
     }
 }

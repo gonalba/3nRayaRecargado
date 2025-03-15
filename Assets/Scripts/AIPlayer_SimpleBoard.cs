@@ -24,11 +24,11 @@ namespace IA
         private int _playerId;
         private int _opponentId;
         private Vector2 _nextPosition;
-        private LevelManager _boardManager;
+        private LevelController _boardManager;
 
-        private SimpleLogicBoard _currentLogicBoard;
+        private SimpleTicTacToe _currentLogicBoard;
 
-        public AIPlayer_SimpleBoard(LevelManager bm, int playerId, int opponentId, bool hardDifficult)
+        public AIPlayer_SimpleBoard(LevelController bm, int playerId, int opponentId, bool hardDifficult)
         {
             _boardManager = bm;
             _playerId = playerId;
@@ -90,9 +90,9 @@ namespace IA
         /// </returns>
         private bool WinIfCan(int player)
         {
-            for (int c = 0; c < LevelManager.DIM(); c++)
+            for (int c = 0; c < LevelController.DIM; c++)
             {
-                for (int r = 0; r < LevelManager.DIM(); r++)
+                for (int r = 0; r < LevelController.DIM; r++)
                 {
                     if (IsEmptyCoords(r, c))
                     {
@@ -119,7 +119,7 @@ namespace IA
         /// </returns>
         public bool IsEmptyCoords(int r, int c)
         {
-            return _currentLogicBoard.GetValueofCell(r, c) == 0;
+            return _currentLogicBoard.GetValueOfCell(r, c) == 0;
         }
 
 
@@ -127,41 +127,46 @@ namespace IA
         /// Metodo que comprueba si se gana colocando ficha en las coordenadas (x,y) pasadas por parámetro
         /// </summary>
         /// <param name="player">Id del jugador del que queremos consultar la mejor posicion</param>
-        /// <param name="r">Columnas</param>
-        /// <param name="c">Filas</param>
+        /// <param name="row">Columnas</param>
+        /// <param name="col">Filas</param>
         /// <returns>
         /// Devuelve TRUE si gana al colocar la ficha en las coordenadas pasadas por parámetro, FALSE en caso contrario
         /// </returns>
-        private bool CanWinInCell(int player, int r, int c)
+        private bool CanWinInCell(int player, int row, int col)
         {
-            int value = player;
+            CellContent value;
+            if (player == 1) value = CellContent.PLAYER1;
+            else value = CellContent.PLAYER2;
 
-            int valueR1 = _currentLogicBoard.GetValueofCell((r + 1) % LevelManager.DIM(), c);
-            int valueR2 = _currentLogicBoard.GetValueofCell((r + 2) % LevelManager.DIM(), c);
+            //if (value != CellContent.EMPTY && value != CellContent.TIE) 
+            //    return false;
 
-            int valueC1 = _currentLogicBoard.GetValueofCell(r, (c + 1) % LevelManager.DIM());
-            int valueC2 = _currentLogicBoard.GetValueofCell(r, (c + 2) % LevelManager.DIM());
+            CellContent valueR1 = _currentLogicBoard.GetValueOfCell((row + 1) % LevelController.DIM, col);
+            CellContent valueR2 = _currentLogicBoard.GetValueOfCell((row + 2) % LevelController.DIM, col);
+
+            CellContent valueC1 = _currentLogicBoard.GetValueOfCell(row, (col + 1) % LevelController.DIM);
+            CellContent valueC2 = _currentLogicBoard.GetValueOfCell(row, (col + 2) % LevelController.DIM);
 
             // Si en la fila todas las casillas son iguales y no vacías
-            if ((value == valueR1) && (value == valueR2) && (value != 0))
+            if (value == valueR1 && value == valueR2)
             {
                 return true;
             }
 
             // Lo mismo para las columnas
-            if ((value == valueC1) && (value == valueC2) && (value != 0))
+            if (value == valueC1 && value == valueC2)
             {
                 return true;
             }
 
 
-            int valueD1 = _currentLogicBoard.GetValueofCell((r + 1) % LevelManager.DIM(), (c + 1) % LevelManager.DIM());
-            int valueD2 = _currentLogicBoard.GetValueofCell((r + 2) % LevelManager.DIM(), (c + 2) % LevelManager.DIM());
+            CellContent valueD1 = _currentLogicBoard.GetValueOfCell((row + 1) % LevelController.DIM, (col + 1) % LevelController.DIM);
+            CellContent valueD2 = _currentLogicBoard.GetValueOfCell((row + 2) % LevelController.DIM, (col + 2) % LevelController.DIM);
 
             // Y finalmente miro las dos diagonales
 
             // Diagonal 0,0|1,1|2,2
-            if (Math.Abs(r - c) == 0 && (value == valueD1) && (value == valueD2) && (value != 0))
+            if (Math.Abs(row - col) == 0 && value == valueD1 && value == valueD2)
             {
                 return true;
             }
@@ -169,25 +174,24 @@ namespace IA
             // Diagonal 2,0|1,1|0,2
 
             // Calculamos las coordenadas de la diagonal
-            int r1Inv = (r + 1) % LevelManager.DIM();
-            int c1Inv = c - 1;
+            int r1Inv = (row + 1) % LevelController.DIM;
+            int c1Inv = col - 1;
             if (c1Inv == -1)
-                c1Inv = LevelManager.DIM() - 1;
+                c1Inv = LevelController.DIM - 1;
 
-            int r2Inv = (r + 2) % LevelManager.DIM();
-            int c2Inv = c - 2;
+            int r2Inv = (row + 2) % LevelController.DIM;
+            int c2Inv = col - 2;
             if (c2Inv == -1)
-                c2Inv = LevelManager.DIM() - 1;
+                c2Inv = LevelController.DIM - 1;
             else if (c2Inv == -2)
-                c2Inv = LevelManager.DIM() - 2;
+                c2Inv = LevelController.DIM - 2;
 
             // accedemos al valor de las coordenadas calculadas
-            int valueD1Inv = _currentLogicBoard.GetValueofCell(r1Inv, c1Inv);
-            int valueD2Inv = _currentLogicBoard.GetValueofCell(r2Inv, c2Inv);
+            CellContent valueD1Inv = _currentLogicBoard.GetValueOfCell(r1Inv, c1Inv);
+            CellContent valueD2Inv = _currentLogicBoard.GetValueOfCell(r2Inv, c2Inv);
 
             // comprobamos si todos los valores coinciden
-            if ((Math.Abs(r - c) == 2 || (r == 1 && c == 1))
-                && (value == valueD1Inv) && (value == valueD2Inv) && (value != 0))
+            if ((Math.Abs(row - col) == 2 || (row == 1 && col == 1)) && value == valueD1Inv && value == valueD2Inv)
             {
                 return true;
             }
@@ -235,9 +239,9 @@ namespace IA
         {
             int conteoMayor = 0, cConteoMayor = -1, rConteoMayor = -1;
 
-            for (int r = 0; r < LevelManager.DIM(); r++)
+            for (int r = 0; r < LevelController.DIM; r++)
             {
-                for (int c = 0; c < LevelManager.DIM(); c++)
+                for (int c = 0; c < LevelController.DIM; c++)
                 {
                     if (IsEmptyCoords(r, c))
                     {
@@ -278,6 +282,14 @@ namespace IA
         /// </returns>
         int ScoreWithNewCoordsHardMode(int player, int opponent, int newR, int newC)
         {
+            CellContent valuePlayer;
+            if (player == 1) valuePlayer = CellContent.PLAYER1;
+            else valuePlayer = CellContent.PLAYER2;
+
+            CellContent valueOpponent;
+            if (opponent == 1) valueOpponent = CellContent.PLAYER1;
+            else valueOpponent = CellContent.PLAYER2;
+
             int score = 0;
             for (int i = 0; i < 9; i++)
             {
@@ -288,9 +300,9 @@ namespace IA
                     int r = rows[i];
                     int c = (cols[i] + j) % 3;
 
-                    if (_currentLogicBoard.GetValueofCell(r, c) == player || (r == newR && c == newC))
+                    if (_currentLogicBoard.GetValueOfCell(r, c) == valuePlayer || (r == newR && c == newC))
                         lineScoreR++;
-                    else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
+                    else if (_currentLogicBoard.GetValueOfCell(r, c) == valueOpponent)
                     {
                         lineScoreR--;
                     }
@@ -305,9 +317,9 @@ namespace IA
                     int r = (rows[i] + j) % 3;
                     int c = cols[i];
 
-                    if (_currentLogicBoard.GetValueofCell(r, c) == player || (r == newR && c == newC))
+                    if (_currentLogicBoard.GetValueOfCell(r, c) == valuePlayer || (r == newR && c == newC))
                         lineScoreC++;
-                    else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
+                    else if (_currentLogicBoard.GetValueOfCell(r, c) == valueOpponent)
                     {
                         lineScoreC--;
                     }
@@ -327,9 +339,9 @@ namespace IA
                         int r = (rows[i] + j) % 3;
                         int c = (cols[i] + j) % 3;
 
-                        if (_currentLogicBoard.GetValueofCell(r, c) == player || (r == newR && c == newC))
+                        if (_currentLogicBoard.GetValueOfCell(r, c) == valuePlayer || (r == newR && c == newC))
                             diagScoreN++;
-                        else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
+                        else if (_currentLogicBoard.GetValueOfCell(r, c) == valueOpponent)
                         {
                             diagScoreN--;
                         }
@@ -347,9 +359,9 @@ namespace IA
                         int r = (rows[i] + j) % 3;
                         int c = (cols[i] - j) > -1 ? cols[i] - j : cols[i] - j + 3;
 
-                        if (_currentLogicBoard.GetValueofCell(r, c) == player || (r == newR && c == newC))
+                        if (_currentLogicBoard.GetValueOfCell(r, c) == valuePlayer || (r == newR && c == newC))
                             diagScoreI++;
-                        else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
+                        else if (_currentLogicBoard.GetValueOfCell(r, c) == valueOpponent)
                         {
                             diagScoreI--;
                         }
@@ -378,9 +390,9 @@ namespace IA
         private int ScoreWithNewCoordsEasyMode(int player, int opponent, int newR, int newC)
         {
             int conteoMayor = 0;
-            for (int r = 0; r < LevelManager.DIM(); r++)
+            for (int r = 0; r < LevelController.DIM; r++)
             {
-                for (int c = 0; c < LevelManager.DIM(); c++)
+                for (int c = 0; c < LevelController.DIM; c++)
                 {
                     // Colocamos y contamos el puntaje
                     int conteoTemporal;
@@ -426,16 +438,24 @@ namespace IA
         /// </returns>
         private int CountUp(int player, int opponent, int r, int c, int newR, int newC)
         {
+            CellContent valuePlayer;
+            if (player == 1) valuePlayer = CellContent.PLAYER1;
+            else valuePlayer = CellContent.PLAYER2;
+
+            CellContent valueOpponent;
+            if (opponent == 1) valueOpponent = CellContent.PLAYER1;
+            else valueOpponent = CellContent.PLAYER2;
+
             int cInicio = (c - CONTEO_PARA_GANAR >= 0) ? c - CONTEO_PARA_GANAR + 1 : 0;
             int contador = 0;
 
             for (; cInicio <= c; cInicio++)
             {
-                if (_currentLogicBoard.GetValueofCell(r, cInicio) == player || (r == newR && cInicio == newC))
+                if (_currentLogicBoard.GetValueOfCell(r, cInicio) == valuePlayer || (r == newR && cInicio == newC))
                 {
                     contador++;
                 }
-                else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
+                else if (_currentLogicBoard.GetValueOfCell(r, c) == valueOpponent)
                 {
                     contador = 0;
                 }
@@ -458,16 +478,24 @@ namespace IA
         /// </returns>
         private int CountRight(int player, int opponent, int r, int c, int newR, int newC)
         {
-            int xFin = (r + CONTEO_PARA_GANAR < LevelManager.DIM()) ? r + CONTEO_PARA_GANAR - 1 : LevelManager.DIM() - 1;
+            CellContent valuePlayer;
+            if (player == 1) valuePlayer = CellContent.PLAYER1;
+            else valuePlayer = CellContent.PLAYER2;
+
+            CellContent valueOpponent;
+            if (opponent == 1) valueOpponent = CellContent.PLAYER1;
+            else valueOpponent = CellContent.PLAYER2;
+
+            int xFin = (r + CONTEO_PARA_GANAR < LevelController.DIM) ? r + CONTEO_PARA_GANAR - 1 : LevelController.DIM - 1;
             int contador = 0;
 
             for (; r <= xFin; r++)
             {
-                if (_currentLogicBoard.GetValueofCell(r, c) == player || (r == newR && c == newC))
+                if (_currentLogicBoard.GetValueOfCell(r, c) == valuePlayer || (r == newR && c == newC))
                 {
                     contador++;
                 }
-                else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
+                else if (_currentLogicBoard.GetValueOfCell(r, c) == valueOpponent)
                 {
                     contador = 0;
                 }
@@ -490,17 +518,25 @@ namespace IA
         /// </returns>
         private int CountUpRight(int player, int opponent, int r, int c, int newR, int newC)
         {
-            int rFin = (r + CONTEO_PARA_GANAR < LevelManager.DIM()) ? r + CONTEO_PARA_GANAR - 1 : LevelManager.DIM() - 1;
+            CellContent valuePlayer;
+            if (player == 1) valuePlayer = CellContent.PLAYER1;
+            else valuePlayer = CellContent.PLAYER2;
+
+            CellContent valueOpponent;
+            if (opponent == 1) valueOpponent = CellContent.PLAYER1;
+            else valueOpponent = CellContent.PLAYER2;
+
+            int rFin = (r + CONTEO_PARA_GANAR < LevelController.DIM) ? r + CONTEO_PARA_GANAR - 1 : LevelController.DIM - 1;
             int cInicio = (c - CONTEO_PARA_GANAR >= 0) ? c - CONTEO_PARA_GANAR + 1 : 0;
             int contador = 0;
 
             while (r <= rFin && cInicio <= c)
             {
-                if (_currentLogicBoard.GetValueofCell(r, c) == player || (r == newR && c == newC))
+                if (_currentLogicBoard.GetValueOfCell(r, c) == valuePlayer || (r == newR && c == newC))
                 {
                     contador++;
                 }
-                else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
+                else if (_currentLogicBoard.GetValueOfCell(r, c) == valueOpponent)
                 {
                     contador = 0;
                 }
@@ -525,17 +561,25 @@ namespace IA
         /// </returns>
         private int CountBottomRight(int player, int opponent, int r, int c, int newR, int newC)
         {
-            int rFin = (r + CONTEO_PARA_GANAR < LevelManager.DIM()) ? r + CONTEO_PARA_GANAR - 1 : LevelManager.DIM() - 1;
-            int cFin = (c + CONTEO_PARA_GANAR < LevelManager.DIM()) ? c + CONTEO_PARA_GANAR - 1 : LevelManager.DIM() - 1;
+            CellContent valuePlayer;
+            if (player == 1) valuePlayer = CellContent.PLAYER1;
+            else valuePlayer = CellContent.PLAYER2;
+
+            CellContent valueOpponent;
+            if (opponent == 1) valueOpponent = CellContent.PLAYER1;
+            else valueOpponent = CellContent.PLAYER2;
+
+            int rFin = (r + CONTEO_PARA_GANAR < LevelController.DIM) ? r + CONTEO_PARA_GANAR - 1 : LevelController.DIM - 1;
+            int cFin = (c + CONTEO_PARA_GANAR < LevelController.DIM) ? c + CONTEO_PARA_GANAR - 1 : LevelController.DIM - 1;
             int contador = 0;
 
             while (r <= rFin && c <= cFin)
             {
-                if (_currentLogicBoard.GetValueofCell(r, c) == player || (r == newR && c == newC))
+                if (_currentLogicBoard.GetValueOfCell(r, c) == valuePlayer || (r == newR && c == newC))
                 {
                     contador++;
                 }
-                else if (_currentLogicBoard.GetValueofCell(r, c) == opponent)
+                else if (_currentLogicBoard.GetValueOfCell(r, c) == valueOpponent)
                 {
                     contador = 0;
                 }
@@ -555,7 +599,7 @@ namespace IA
         /// </returns>
         private bool UpperLeftCorner()
         {
-            if (_currentLogicBoard.GetValueofCell(0, 0) == 0)
+            if (_currentLogicBoard.GetValueOfCell(0, 0) == 0)
             {
                 _nextPosition.x = 0;
                 _nextPosition.y = 0;
@@ -570,12 +614,12 @@ namespace IA
         /// </summary>
         private void RandomCell()
         {
-            int aux = UnityEngine.Random.Range(0, LevelManager.DIM() - 1);
+            int aux = UnityEngine.Random.Range(0, LevelController.DIM - 1);
 
-            for (int row = (aux + 1) % LevelManager.DIM(); row != aux; row = (row + 1) % LevelManager.DIM())
-                for (int col = (aux + 1) % LevelManager.DIM(); col != aux; col = (col + 1) % LevelManager.DIM())
+            for (int row = (aux + 1) % LevelController.DIM; row != aux; row = (row + 1) % LevelController.DIM)
+                for (int col = (aux + 1) % LevelController.DIM; col != aux; col = (col + 1) % LevelController.DIM)
                 {
-                    if (_currentLogicBoard.WhoWin() == -1 && IsEmptyCoords(row, col))
+                    if (_currentLogicBoard.WhoWin() == CellContent.EMPTY && IsEmptyCoords(row, col))
                     {
                         _nextPosition.y = row;
                         _nextPosition.x = col;

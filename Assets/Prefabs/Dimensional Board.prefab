@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &102506562228277348
+--- !u!1 &4492075711930903729
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,22 +8,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4611215330787513090}
-  - component: {fileID: 2164424574606747515}
+  - component: {fileID: 1274990884770318083}
+  - component: {fileID: 6643324197582521275}
   m_Layer: 0
-  m_Name: Simple Board
+  m_Name: Dimensional Board
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4611215330787513090
+--- !u!4 &1274990884770318083
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 102506562228277348}
+  m_GameObject: {fileID: 4492075711930903729}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -32,20 +32,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2164424574606747515
+--- !u!114 &6643324197582521275
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 102506562228277348}
+  m_GameObject: {fileID: 4492075711930903729}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 824bc29fda8e7be4aae4b64bc2391fbd, type: 3}
+  m_Script: {fileID: 11500000, guid: f18c1bdb5b7c22a4da644d2d8fa4f774, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cellPrefab: {fileID: 1021463767443915301, guid: 2ce6b664bd4082d44a5e28f453fa11de, type: 3}
-  bCollider: {fileID: 0}
+  boardsOffset: 0.5
   skin: {fileID: 11400000, guid: 42336896b01dae749b3b7f60303e2d26, type: 2}
-  row: -1
-  col: -1
+  simpleBoardPrefab: {fileID: 2164424574606747515, guid: a8eb2c4e5463fee4bbd443ef50156326, type: 3}
